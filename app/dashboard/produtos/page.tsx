@@ -2,13 +2,16 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Package, Plus, Search, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+//Importação do axios
+import axios from 'axios'
 
 // Dados de exemplo
 const produtosIniciais = [
@@ -22,7 +25,23 @@ const produtosIniciais = [
   { id: 8, codigo: "P008", nome: "Placa de Vídeo", categoria: "Componentes", estoque: 12, minimo: 3 },
 ]
 
+
 export default function ProdutosPage() {
+
+  const buscarProdutos = async () =>{
+    try{
+      const response = await axios.get(`http://localhost:8080/produto/`)
+      setProdutos(response.data);
+    }catch (error){
+      console.log("Erro de comunicação: "+error)
+    }
+  }
+
+  useEffect(() => {
+
+    buscarProdutos()
+  }, [])
+
   const [produtos, setProdutos] = useState(produtosIniciais)
   const [busca, setBusca] = useState("")
   const [produtoAtual, setProdutoAtual] = useState<any>(null)

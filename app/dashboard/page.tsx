@@ -46,6 +46,12 @@ export default function Dashboard() {
               </Link>
             </li>
             <li>
+              <Link href="/dashboard/produtos" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+                <FileText className="h-5 w-5" />
+                {sidebarOpen && <span>Produtos</span>}
+              </Link>
+            </li>
+            <li>
               <Link href="/dashboard/entradas" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
                 <ShoppingCart className="h-5 w-5" />
                 {sidebarOpen && <span>Entradas</span>}

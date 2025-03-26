@@ -5,17 +5,38 @@ import type React from "react"
 import { useState } from "react"
 import { User, Lock, LogIn } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { url, port} from '../configApi.json'
+import axios from "axios"
 
 export default function LoginPage() {
   const [matricula, setMatricula] = useState("")
   const [senha, setSenha] = useState("")
   const router = useRouter()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Aqui você implementaria a lógica de autenticação
-    // Por enquanto, vamos apenas redirecionar para o dashboard
-    router.push("/dashboard")
+    
+    try{
+      const response = await axios.post(`${url}:${port}/login`, 
+        {
+          usuLogin:matricula,
+          usuSenha:senha
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true
+        }
+        
+      )
+
+      console.log(response)
+    }catch(error){
+      console.log("errorrrrr" + error)
+    }
+
+    //router.push("/dashboard")
   }
 
   return (
