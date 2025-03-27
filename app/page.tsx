@@ -26,12 +26,18 @@ export default function LoginPage() {
           headers: {
             "Content-Type": "application/json",
           },
-          withCredentials: true
-        }
-        
-      )
+          withCredentials: true})
 
-      console.log(response)
+      if(response.status == 200){
+        let key = "Authorization"
+        let token = response.headers.authorization
+
+        window.localStorage.setItem(key, token)
+        router.push("/dashboard")
+      }else{
+        alert("Erro de autenticação")
+      }
+      
     }catch(error){
       console.log("errorrrrr" + error)
     }

@@ -13,51 +13,53 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 //Importação do axios
 import axios from 'axios'
 
-// Dados de exemplo
-const produtosIniciais = [
-  { id: 1, codigo: "P001", nome: "Teclado Mecânico", categoria: "Periféricos", estoque: 45, minimo: 10 },
-  { id: 2, codigo: "P002", nome: "Mouse Gamer", categoria: "Periféricos", estoque: 32, minimo: 8 },
-  { id: 3, codigo: "P003", nome: 'Monitor 24"', categoria: "Monitores", estoque: 18, minimo: 5 },
-  { id: 4, codigo: "P004", nome: "Headset", categoria: "Áudio", estoque: 27, minimo: 7 },
-  { id: 5, codigo: "P005", nome: "Webcam HD", categoria: "Periféricos", estoque: 15, minimo: 5 },
-  { id: 6, codigo: "P006", nome: "SSD 500GB", categoria: "Armazenamento", estoque: 23, minimo: 6 },
-  { id: 7, codigo: "P007", nome: "Memória RAM 8GB", categoria: "Componentes", estoque: 41, minimo: 10 },
-  { id: 8, codigo: "P008", nome: "Placa de Vídeo", categoria: "Componentes", estoque: 12, minimo: 3 },
-]
+//Dados de interface, onde determino os tipos de objetos
+interface Produto{
+  proId: number
+  proNome: String
+  proSipac: String
+  proUn: String
+  proQtd: number
+  proEstoqueMin: number
+  isAbaixoMin: Boolean
+  isAtivo: Boolean
+}
 
 
 export default function ProdutosPage() {
+  const [produtos, setProdutos] = useState<Produto[]>([])
+  const [busca, setBusca] = useState("")
+  const [produtoAtual, setProdutoAtual] = useState<any>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [formData, setFormData] = useState({})
 
   const buscarProdutos = async () =>{
     try{
-      const response = await axios.get(`http://localhost:8080/produto/`)
-      setProdutos(response.data);
+      const response = await axios.get(`http://localhost:8080/produto/`, {
+        headers: {
+          Authorization: localStorage.getItem("Authorization")
+        }
+      })
+      console.log(response)
+      setProdutos(response.data)
     }catch (error){
       console.log("Erro de comunicação: "+error)
     }
   }
+
+  
+
+  
 
   useEffect(() => {
 
     buscarProdutos()
   }, [])
 
-  const [produtos, setProdutos] = useState(produtosIniciais)
-  const [busca, setBusca] = useState("")
-  const [produtoAtual, setProdutoAtual] = useState<any>(null)
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [formData, setFormData] = useState({
-    codigo: "",
-    nome: "",
-    categoria: "",
-    estoque: 0,
-    minimo: 0,
-  })
-
   const produtosFiltrados = produtos.filter(
-    (produto) =>
-      produto.nome.toLowerCase().includes(busca.toLowerCase()) ||
-      produto.codigo.toLowerCase().includes(busca.toLowerCase()),
+    (produto: Produto) =>
+      produto.proNome.toLowerCase().includes(busca.toLowerCase()) ||
+      produto.proSipac.toLowerCase().includes(busca.toLowerCase()),
   )
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,47 +79,50 @@ export default function ProdutosPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("oi")
 
-    if (produtoAtual) {
-      // Editar produto existente
-      setProdutos(produtos.map((p) => (p.id === produtoAtual.id ? { ...formData, id: produtoAtual.id } : p)))
-    } else {
-      // Adicionar novo produto
-      setProdutos([
-        ...produtos,
-        {
-          id: produtos.length + 1,
-          ...formData,
-        },
-      ])
-    }
+    // if (produtoAtual) {
+    //   // Editar produto existente
+    //   setProdutos(produtos.map((p) => (p.proId === produtoAtual.proId ? { ...formData, id: produtoAtual.id } : p)))
+    // } else {
+    //   // Adicionar novo produto
+    //   setProdutos([
+    //     ...produtos,
+    //     {
+    //       id: produtos.length + 1,
+    //       ...formData,
+    //     },
+    //   ])
+    // }
 
-    setDialogOpen(false)
-    setProdutoAtual(null)
-    setFormData({
-      codigo: "",
-      nome: "",
-      categoria: "",
-      estoque: 0,
-      minimo: 0,
-    })
+    // setDialogOpen(false)
+    // setProdutoAtual(null)
+    // setFormData({
+    //   codigo: "",
+    //   nome: "",
+    //   categoria: "",
+    //   estoque: 0,
+    //   minimo: 0,
+    // })
   }
 
-  const handleEdit = (produto: any) => {
+  const handleEdit = (produto: Produto) => {
     setProdutoAtual(produto)
     setFormData({
-      codigo: produto.codigo,
-      nome: produto.nome,
-      categoria: produto.categoria,
-      estoque: produto.estoque,
-      minimo: produto.minimo,
+      proId: produto.proId,
+      proNome: produto.proNome,
+      proSipac: produto.proSipac,
+      proUn: produto.proUn,
+      proQtd: produto.proQtd,
+      proEstoqueMin: produto.proEstoqueMin,
+      isAtivo: produto.isAtivo
     })
     setDialogOpen(true)
   }
 
   const handleDelete = (id: number) => {
     if (confirm("Tem certeza que deseja excluir este produto?")) {
-      setProdutos(produtos.filter((p) => p.id !== id))
+      setProdutos(produtos.filter((p) => p.proId !== id))
     }
   }
 
@@ -175,14 +180,14 @@ export default function ProdutosPage() {
             </thead>
             <tbody>
               {produtosFiltrados.map((produto) => (
-                <tr key={produto.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">{produto.codigo}</td>
-                  <td className="py-3 px-4">{produto.nome}</td>
-                  <td className="py-3 px-4">{produto.categoria}</td>
-                  <td className="py-3 px-4">{produto.estoque}</td>
-                  <td className="py-3 px-4">{produto.minimo}</td>
+                <tr key={produto.proId} className="border-b hover:bg-gray-50">
+                  <td className="py-3 px-4">{produto.proSipac}</td>
+                  <td className="py-3 px-4">{produto.proNome}</td>
+                  <td className="py-3 px-4">{produto.proUn}</td>
+                  <td className="py-3 px-4">{produto.proQtd}</td>
+                  <td className="py-3 px-4">{produto.proEstoqueMin}</td>
                   <td className="py-3 px-4">
-                    {produto.estoque <= produto.minimo ? (
+                    {produto.isAbaixoMin ? (
                       <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Baixo</span>
                     ) : (
                       <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Normal</span>
@@ -193,7 +198,7 @@ export default function ProdutosPage() {
                       <Button variant="outline" size="icon" onClick={() => handleEdit(produto)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="icon" onClick={() => handleDelete(produto.id)}>
+                      <Button variant="outline" size="icon" onClick={() => handleDelete(produto.proId)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -205,7 +210,7 @@ export default function ProdutosPage() {
         </div>
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {/* <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{produtoAtual ? "Editar Produto" : "Novo Produto"}</DialogTitle>
@@ -214,7 +219,7 @@ export default function ProdutosPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="codigo">Código</Label>
-                <Input id="codigo" name="codigo" value={formData.codigo} onChange={handleInputChange} required />
+                <Input id="codigo" name="codigo" value={formData.proId} onChange={handleInputChange} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="categoria">Categoria</Label>
@@ -272,7 +277,7 @@ export default function ProdutosPage() {
             </div>
           </form>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   )
 }
