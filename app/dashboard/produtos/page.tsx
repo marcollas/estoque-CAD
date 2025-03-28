@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { url, port } from '../../../configApi.json'
 
 //Importação do axios
 import axios from 'axios'
@@ -16,26 +17,66 @@ import axios from 'axios'
 //Dados de interface, onde determino os tipos de objetos
 interface Produto{
   proId: number
-  proNome: String
-  proSipac: String
-  proUn: String
+  proNome: string
+  proSipac: string
+  proUn: string
+  proUnId: number
   proQtd: number
   proEstoqueMin: number
-  isAbaixoMin: Boolean
-  isAtivo: Boolean
+  isAbaixoMin: boolean
+  isAtivo: boolean
 }
 
+//Criar o tipo do formulário do produto omitindo alguns campos
+type FormProduto = {
+  proNome: string
+  proSipac: string
+  proUn: string
+  proUnId: number
+  proQtd: number
+  proEstoqueMin: number
+  proId?: number  // ProId é opcional, pode estar ou não contido no formulário
+}
+
+type UnidadesProduto = {
+  unId: number,
+  unNome: string,
+  unSigla: string,
+  isAtivo: boolean
+}
 
 export default function ProdutosPage() {
   const [produtos, setProdutos] = useState<Produto[]>([])
+  const [unidadesProduto, setUnidadesProduto] = useState<UnidadesProduto[]>([])
   const [busca, setBusca] = useState("")
   const [produtoAtual, setProdutoAtual] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [formData, setFormData] = useState({})
+  const [formData, setFormData] = useState<FormProduto>({
+    proNome: "",
+    proSipac: "",
+    proUn: "",
+    proUnId: 0,
+    proQtd: 0,
+    proEstoqueMin: 0
+  })
+
+  const buscarUnidades = async () =>{
+    try{
+      const response = await axios.get(`${url}:${port}/unidadeProduto/`, {
+        headers: {
+          Authorization: localStorage.getItem("Authorization")
+        }
+      })
+      console.log(response)
+      setUnidadesProduto(response.data)
+    }catch (error){
+      console.log("Erro de comunicação: "+error)
+    }
+  }
 
   const buscarProdutos = async () =>{
     try{
-      const response = await axios.get(`http://localhost:8080/produto/`, {
+      const response = await axios.get(`${url}:${port}/produto/`, {
         headers: {
           Authorization: localStorage.getItem("Authorization")
         }
@@ -47,13 +88,19 @@ export default function ProdutosPage() {
     }
   }
 
-  
-
-  
-
   useEffect(() => {
-
-    buscarProdutos()
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          buscarProdutos(),
+          buscarUnidades()
+        ])
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error)
+      }
+    }
+  
+    fetchData()
   }, [])
 
   const produtosFiltrados = produtos.filter(
@@ -62,60 +109,38 @@ export default function ProdutosPage() {
       produto.proSipac.toLowerCase().includes(busca.toLowerCase()),
   )
 
+  //Campo recebe o dados do formulário editado
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]: name === "estoque" || name === "minimo" ? Number.parseInt(value) : value,
+      [name]: name === "proQtd" || name === "proEstoqueMin" ? Number.parseInt(value) : value,
     })
   }
 
   const handleSelectChange = (value: string) => {
     setFormData({
       ...formData,
-      categoria: value,
+      proUn: value,
     })
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log("oi")
-
-    // if (produtoAtual) {
-    //   // Editar produto existente
-    //   setProdutos(produtos.map((p) => (p.proId === produtoAtual.proId ? { ...formData, id: produtoAtual.id } : p)))
-    // } else {
-    //   // Adicionar novo produto
-    //   setProdutos([
-    //     ...produtos,
-    //     {
-    //       id: produtos.length + 1,
-    //       ...formData,
-    //     },
-    //   ])
-    // }
-
-    // setDialogOpen(false)
-    // setProdutoAtual(null)
-    // setFormData({
-    //   codigo: "",
-    //   nome: "",
-    //   categoria: "",
-    //   estoque: 0,
-    //   minimo: 0,
-    // })
   }
 
   const handleEdit = (produto: Produto) => {
+    console.log(produto)
     setProdutoAtual(produto)
     setFormData({
       proId: produto.proId,
       proNome: produto.proNome,
       proSipac: produto.proSipac,
       proUn: produto.proUn,
+      proUnId: produto.proUnId,
       proQtd: produto.proQtd,
-      proEstoqueMin: produto.proEstoqueMin,
-      isAtivo: produto.isAtivo
+      proEstoqueMin: produto.proEstoqueMin
     })
     setDialogOpen(true)
   }
@@ -129,11 +154,12 @@ export default function ProdutosPage() {
   const handleAddNew = () => {
     setProdutoAtual(null)
     setFormData({
-      codigo: "",
-      nome: "",
-      categoria: "",
-      estoque: 0,
-      minimo: 0,
+      proNome: "",
+      proQtd: 0,
+      proEstoqueMin: 0,
+      proSipac: "",
+      proUn: "",
+      proUnId: 0
     })
     setDialogOpen(true)
   }
@@ -210,46 +236,50 @@ export default function ProdutosPage() {
         </div>
       </div>
 
-      {/* <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{produtoAtual ? "Editar Produto" : "Novo Produto"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="codigo">Código</Label>
                 <Input id="codigo" name="codigo" value={formData.proId} onChange={handleInputChange} required />
-              </div>
+              </div> */}
               <div className="space-y-2">
-                <Label htmlFor="categoria">Categoria</Label>
-                <Select value={formData.categoria} onValueChange={handleSelectChange}>
+                <Label htmlFor="categoria">Unidade</Label>
+                <Select value={formData.proUn} onValueChange={handleSelectChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Periféricos">Periféricos</SelectItem>
-                    <SelectItem value="Monitores">Monitores</SelectItem>
-                    <SelectItem value="Áudio">Áudio</SelectItem>
-                    <SelectItem value="Armazenamento">Armazenamento</SelectItem>
-                    <SelectItem value="Componentes">Componentes</SelectItem>
+                  {
+                    unidadesProduto.map((unidade, index) => {
+                      return <SelectItem key={index} value={unidade.unSigla}>{unidade.unNome} - {unidade.unSigla}</SelectItem>
+                    })
+                  }
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="nome">Nome do Produto</Label>
-              <Input id="nome" name="nome" value={formData.nome} onChange={handleInputChange} required />
+              <Input id="nome" name="proNome" value={formData.proNome} onChange={handleInputChange} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="nome">Código SIPAC</Label>
+              <Input id="nome" name="proSipac" value={formData.proSipac} onChange={handleInputChange} required />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="estoque">Estoque Atual</Label>
                 <Input
                   id="estoque"
-                  name="estoque"
+                  name="proQtd"
                   type="number"
                   min="0"
-                  value={formData.estoque}
+                  value={formData.proQtd}
                   onChange={handleInputChange}
                   required
                 />
@@ -258,10 +288,10 @@ export default function ProdutosPage() {
                 <Label htmlFor="minimo">Estoque Mínimo</Label>
                 <Input
                   id="minimo"
-                  name="minimo"
+                  name="proEstoqueMin"
                   type="number"
                   min="0"
-                  value={formData.minimo}
+                  value={formData.proEstoqueMin}
                   onChange={handleInputChange}
                   required
                 />
@@ -277,7 +307,7 @@ export default function ProdutosPage() {
             </div>
           </form>
         </DialogContent>
-      </Dialog> */}
+      </Dialog>
     </div>
   )
 }
