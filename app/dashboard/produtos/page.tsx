@@ -13,6 +13,7 @@ import { url, port } from '../../../configApi.json'
 
 //Importação do axios
 import axios from 'axios'
+import { error } from "console"
 
 //Dados de interface, onde determino os tipos de objetos
 interface Produto{
@@ -21,6 +22,9 @@ interface Produto{
   proSipac: string
   proUn: string
   proUnId: number
+  proCategoria: string
+  proCategoriaId: number
+  proDescricao: string
   proQtd: number
   proEstoqueMin: number
   isAbaixoMin: boolean
@@ -31,8 +35,9 @@ interface Produto{
 type FormProduto = {
   proNome: string
   proSipac: string
-  proUn: string
   proUnId: number
+  proCategoriaId: number
+  proDescricao?: string
   proQtd: number
   proEstoqueMin: number
   proId?: number  // ProId é opcional, pode estar ou não contido no formulário
@@ -45,21 +50,43 @@ type UnidadesProduto = {
   isAtivo: boolean
 }
 
+type CategoriaProduto = {
+  catProId: number
+  catProNome: string
+  isAtivo: true
+}
+
 export default function ProdutosPage() {
   const [produtos, setProdutos] = useState<Produto[]>([])
   const [unidadesProduto, setUnidadesProduto] = useState<UnidadesProduto[]>([])
+  const [categoria, setCategoria] = useState<CategoriaProduto[]>([])
   const [busca, setBusca] = useState("")
   const [produtoAtual, setProdutoAtual] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<FormProduto>({
     proNome: "",
     proSipac: "",
-    proUn: "",
     proUnId: 0,
+    proCategoriaId: 0,
     proQtd: 0,
     proEstoqueMin: 0
   })
 
+  const formatarDadosApi = (formData: FormProduto) =>{
+    return {
+      proNome: formData.proNome,
+      proSipac: formData.proSipac,
+      proQtd: formData.proQtd,
+      proDescricao: formData.proDescricao || '',
+      proEstoqueMin: formData.proEstoqueMin,
+      proCategoria: {
+        catProId: formData.proCategoriaId || null
+      },
+      proUn: {
+        unId: formData.proUnId
+      }
+    };
+  }
   const buscarUnidades = async () =>{
     try{
       const response = await axios.get(`${url}:${port}/unidadeProduto/`, {
@@ -88,10 +115,26 @@ export default function ProdutosPage() {
     }
   }
 
+  const buscarCategorias = async () =>{
+    try{
+      const response = await axios.get(`${url}:${port}/categoriaProduto/`, {
+        headers: {
+          Authorization: localStorage.getItem("Authorization")
+        }
+      })
+      console.log(response)
+      setCategoria(response.data)
+    }catch (error){
+      console.log("Erro de comunicação: "+error)
+    }
+  }
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         await Promise.all([
+          buscarCategorias(),
           buscarProdutos(),
           buscarUnidades()
         ])
@@ -102,6 +145,67 @@ export default function ProdutosPage() {
   
     fetchData()
   }, [])
+
+  const atualizarProdutos = async () => {  
+    try {
+      await axios.put(`${url}:${port}/produto/${produtoAtual.proId}`, formatarDadosApi(formData), {
+        headers: {
+          Authorization: localStorage.getItem("Authorization") || ''
+        }
+      })
+
+      alert("Produto atualizado com sucesso!")
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const cadastrarProduto = async () => {  
+    try {
+      await axios.post(`${url}:${port}/produto/`, formatarDadosApi(formData), {
+        headers: {
+          Authorization: localStorage.getItem("Authorization") || ''
+        }
+      })
+
+      alert("Produto cadastrado com sucesso!")
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      if (produtoAtual) {
+        // Modo Edição - PUT request
+        await atualizarProdutos(); // Adicione await aqui
+      } else {
+        // Modo Cadastro - POST request
+        await cadastrarProduto(); // Adicione await aqui
+      }
+  
+      // Atualiza a lista de produtos
+      await buscarProdutos();
+      
+      // Fecha o diálogo e reseta o formulário
+      setDialogOpen(false);
+      setProdutoAtual(null);
+      setFormData({
+        proNome: "",
+        proSipac: "",
+        proUnId: 0,
+        proCategoriaId: 0,
+        proQtd: 0,
+        proEstoqueMin: 0
+      });
+  
+    } catch (error) {
+      console.error("Erro ao salvar produto:", error);
+      alert("Ocorreu um erro ao processar sua solicitação.");
+    }
+  }
 
   const produtosFiltrados = produtos.filter(
     (produto: Produto) =>
@@ -118,27 +222,29 @@ export default function ProdutosPage() {
     })
   }
 
-  const handleSelectChange = (value: string) => {
+  const handleUnidadeChange = (unidade: string) => {
     setFormData({
       ...formData,
-      proUn: value,
+      proUnId: Number(unidade),
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("oi")
+  const handleCategoriaChange = (categoria: string) => {
+    setFormData({
+      ...formData,
+      proCategoriaId: Number(categoria)
+    })
   }
 
   const handleEdit = (produto: Produto) => {
-    console.log(produto)
+    //console.log(produto)
     setProdutoAtual(produto)
     setFormData({
       proId: produto.proId,
       proNome: produto.proNome,
       proSipac: produto.proSipac,
-      proUn: produto.proUn,
       proUnId: produto.proUnId,
+      proCategoriaId: produto.proCategoriaId,
       proQtd: produto.proQtd,
       proEstoqueMin: produto.proEstoqueMin
     })
@@ -158,8 +264,8 @@ export default function ProdutosPage() {
       proQtd: 0,
       proEstoqueMin: 0,
       proSipac: "",
-      proUn: "",
-      proUnId: 0
+      proUnId: 0,
+      proCategoriaId: 0
     })
     setDialogOpen(true)
   }
@@ -197,6 +303,7 @@ export default function ProdutosPage() {
               <tr className="border-b">
                 <th className="text-left py-3 px-4">Código</th>
                 <th className="text-left py-3 px-4">Nome</th>
+                <th className="text-left py-3 px-4">Unidade</th>
                 <th className="text-left py-3 px-4">Categoria</th>
                 <th className="text-left py-3 px-4">Estoque</th>
                 <th className="text-left py-3 px-4">Mínimo</th>
@@ -210,6 +317,7 @@ export default function ProdutosPage() {
                   <td className="py-3 px-4">{produto.proSipac}</td>
                   <td className="py-3 px-4">{produto.proNome}</td>
                   <td className="py-3 px-4">{produto.proUn}</td>
+                  <td className="py-3 px-4">{produto.proCategoria}</td>
                   <td className="py-3 px-4">{produto.proQtd}</td>
                   <td className="py-3 px-4">{produto.proEstoqueMin}</td>
                   <td className="py-3 px-4">
@@ -249,14 +357,29 @@ export default function ProdutosPage() {
               </div> */}
               <div className="space-y-2">
                 <Label htmlFor="categoria">Unidade</Label>
-                <Select value={formData.proUn} onValueChange={handleSelectChange}>
+                <Select value={formData.proUnId.toString()} onValueChange={handleUnidadeChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
                   {
                     unidadesProduto.map((unidade, index) => {
-                      return <SelectItem key={index} value={unidade.unSigla}>{unidade.unNome} - {unidade.unSigla}</SelectItem>
+                      return <SelectItem key={index} value={unidade.unId.toString()}>{unidade.unNome} - {unidade.unSigla}</SelectItem>
+                    })
+                  }
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="categoria">Categoria</Label>
+                <Select value={formData.proCategoriaId.toString()} onValueChange={handleCategoriaChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  {
+                    categoria.map((categoria, index) => {
+                      return <SelectItem key={index} value={categoria.catProId.toString()}>{categoria.catProNome}</SelectItem>
                     })
                   }
                   </SelectContent>
