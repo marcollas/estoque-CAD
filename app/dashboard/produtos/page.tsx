@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { url, port } from '../../../configApi.json'
+import { useProdutos } from "@/hooks/useProduto"
 
 //Importação do axios
 import axios from 'axios'
@@ -72,6 +73,8 @@ export default function ProdutosPage() {
     proEstoqueMin: 0
   })
 
+  const produtosHook  = useProdutos()
+  
   const formatarDadosApi = (formData: FormProduto) =>{
     return {
       proNome: formData.proNome,
@@ -100,18 +103,18 @@ export default function ProdutosPage() {
     }
   }
 
-  const buscarProdutos = async () =>{
-    try{
-      const response = await axios.get(`${url}:${port}/produto/`, {
-        headers: {
-          Authorization: localStorage.getItem("Authorization")
-        }
-      })
-      setProdutos(response.data)
-    }catch (error){
-      console.log("Erro de comunicação: "+error)
-    }
-  }
+  // const buscarProdutos = async () =>{
+  //   try{
+  //     const response = await axios.get(`${url}:${port}/produto/`, {
+  //       headers: {
+  //         Authorization: localStorage.getItem("Authorization")
+  //       }
+  //     })
+  //     setProdutos(response.data)
+  //   }catch (error){
+  //     console.log("Erro de comunicação: "+error)
+  //   }
+  // }
 
   const buscarCategorias = async () =>{
     try{
@@ -132,7 +135,7 @@ export default function ProdutosPage() {
       try {
         await Promise.all([
           buscarCategorias(),
-          buscarProdutos(),
+          produtosHook.listarProdutos(),
           buscarUnidades()
         ])
       } catch (error) {
@@ -184,7 +187,7 @@ export default function ProdutosPage() {
       }
   
       // Atualiza a lista de produtos
-      await buscarProdutos();
+      await produtosHook.listarProdutos();
       
       // Fecha o diálogo e reseta o formulário
       setDialogOpen(false);
@@ -204,7 +207,7 @@ export default function ProdutosPage() {
     }
   }
 
-  const produtosFiltrados = produtos.filter(
+  const produtosFiltrados = produtosHook.produtos.filter(
     (produto: Produto) =>
       produto.proNome.toLowerCase().includes(busca.toLowerCase()) ||
       produto.proSipac.toLowerCase().includes(busca.toLowerCase()),
