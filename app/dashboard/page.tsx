@@ -34,9 +34,9 @@ export default function Dashboard() {
               </Link>
             </li>
             <li>
-              <Link href="/dashboard/materiais" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+              <Link href="/dashboard/requisitantes" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
                 <Package className="h-5 w-5" />
-                {sidebarOpen && <span>Materiais</span>}
+                {sidebarOpen && <span>Requisitantes</span>}
               </Link>
             </li>
             <li>
@@ -52,18 +52,18 @@ export default function Dashboard() {
               </Link>
             </li>
             <li>
-              <Link href="/dashboard/entradas" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
-                <ShoppingCart className="h-5 w-5" />
-                {sidebarOpen && <span>Entradas</span>}
-              </Link>
-            </li>
-            <li>
               <Link
-                href="/dashboard/departamentos"
+                href="/dashboard/faculdades"
                 className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
               >
                 <BookOpen className="h-5 w-5" />
-                {sidebarOpen && <span>Departamentos</span>}
+                {sidebarOpen && <span>Faculdades</span>}
+              </Link>
+            </li>
+            <li>
+              <Link href="/dashboard/entradas" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+                <ShoppingCart className="h-5 w-5" />
+                {sidebarOpen && <span>Entradas</span>}
               </Link>
             </li>
             <li>

@@ -94,7 +94,6 @@ export default function ProdutosPage() {
           Authorization: localStorage.getItem("Authorization")
         }
       })
-      console.log(response)
       setUnidadesProduto(response.data)
     }catch (error){
       console.log("Erro de comunicação: "+error)
@@ -108,7 +107,6 @@ export default function ProdutosPage() {
           Authorization: localStorage.getItem("Authorization")
         }
       })
-      console.log(response)
       setProdutos(response.data)
     }catch (error){
       console.log("Erro de comunicação: "+error)
@@ -122,7 +120,6 @@ export default function ProdutosPage() {
           Authorization: localStorage.getItem("Authorization")
         }
       })
-      console.log(response)
       setCategoria(response.data)
     }catch (error){
       console.log("Erro de comunicação: "+error)
