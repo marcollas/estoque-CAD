@@ -80,14 +80,6 @@ export default function unidadesPage() {
     })
   }
 
-  const handleUnidadeChange = (unidade: string) => {
-    setFormData({
-      ...formData,
-      unId: Number(unidade),
-    })
-  }
-  
-
   const handleEdit = (unidade: UnidadeType) => {
     //console.log(unidade)
     setUnidadeAtual(unidade)

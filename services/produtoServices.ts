@@ -53,7 +53,6 @@ export const ProdutoServices = {
     async inativar(id: number): Promise<void>{
         try {
             const response = await apiClient.put(`/produto/inativar/${id}`)
-            console.log(response)
             return response.data
         } catch (error) {
             console.log(error)

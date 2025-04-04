@@ -8,37 +8,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { url, port } from '../../../configApi.json'
-import { useProdutos } from "@/hooks/useProduto"
-import { useUnidades } from "@/hooks/useUnidade"
 import { useCategoria } from "@/hooks/useCategoria"
-import type { ProdutoType, FormProdutoType } from "@/types/produtoType"
+import type { CategoriaType } from "@/types/categoriaType"
 
-export default function ProdutosPage() {
+export default function categoriaPage() {
   const [busca, setBusca] = useState("")
-  const [produtoAtual, setProdutoAtual] = useState<any>(null)
+  const [categoriaAtual, setCategoriaAtual] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [formData, setFormData] = useState<FormProdutoType>({
-    proNome: "",
-    proSipac: "",
-    proUnId: 0,
-    proCategoriaId: 0,
-    proQtd: 0,
-    proEstoqueMin: 0
+  const [formData, setFormData] = useState<CategoriaType>({
+    catProId: 0,
+    catProNome: "" 
   })
 
-  const produtosHook  = useProdutos()
-  const unidadesHook = useUnidades()
   const categoriaHook = useCategoria()
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         await Promise.all([
-          categoriaHook.listarCategoria(),
-          produtosHook.listarProdutos(),
-          unidadesHook.listarUnidades()
+          categoriaHook.listarCategoria()
         ])
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
@@ -52,36 +39,31 @@ export default function ProdutosPage() {
     e.preventDefault();
     
     try {
-      if (produtoAtual) {
+      if (categoriaAtual) {
         // Modo Edição - PUT request
-        produtosHook.atualizarProduto(produtoAtual.proId, formData)
+        categoriaHook.atualizarCategoria(categoriaAtual.catProId, formData)
       } else {
         // Modo Cadastro - POST request
-        produtosHook.criarProduto(formData)
+        categoriaHook.criarCategoria(formData)
       }
   
       // Fecha o diálogo e reseta o formulário
       setDialogOpen(false);
-      setProdutoAtual(null);
+      setCategoriaAtual(null);
       setFormData({
-        proNome: "",
-        proSipac: "",
-        proUnId: 0,
-        proCategoriaId: 0,
-        proQtd: 0,
-        proEstoqueMin: 0
+        catProId: 0,
+        catProNome: "" 
       });
   
     } catch (error) {
-      console.error("Erro ao salvar produto:", error);
+      console.error("Erro ao salvar categoria:", error);
       alert("Ocorreu um erro ao processar sua solicitação.");
     }
   }
 
-  const produtosFiltrados = produtosHook.produtos.filter(
-    (produto: ProdutoType) =>
-      (produto.proNome?.toLowerCase() || '').includes(busca.toLowerCase()) ||
-      (produto.proSipac?.toLowerCase() || '').includes(busca.toLowerCase()),
+  const categoriaFiltrados = categoriaHook.categoria.filter(
+    (categoria: CategoriaType) =>
+      (categoria.catProNome?.toLowerCase() || '').includes(busca.toLowerCase())
   )
 
   //Campo recebe o dados do formulário editado
@@ -92,51 +74,29 @@ export default function ProdutosPage() {
       [name]: name === "proQtd" || name === "proEstoqueMin" ? Number.parseInt(value) : value,
     })
   }
+  
 
-  const handleUnidadeChange = (unidade: string) => {
+  const handleEdit = (categoria: CategoriaType) => {
+    //console.log(categoria)
+    setCategoriaAtual(categoria)
     setFormData({
-      ...formData,
-      proUnId: Number(unidade),
-    })
-  }
-
-  const handleCategoriaChange = (categoria: string) => {
-    setFormData({
-      ...formData,
-      proCategoriaId: Number(categoria)
-    })
-  }
-
-  const handleEdit = (produto: ProdutoType) => {
-    //console.log(produto)
-    setProdutoAtual(produto)
-    setFormData({
-      proId: produto.proId,
-      proNome: produto.proNome,
-      proSipac: produto.proSipac,
-      proUnId: produto.proUnId,
-      proCategoriaId: produto.proCategoriaId,
-      proQtd: produto.proQtd,
-      proEstoqueMin: produto.proEstoqueMin
+      catProId: categoria.catProId,
+      catProNome: categoria.catProNome
     })
     setDialogOpen(true)
   }
 
   const handleDelete = (id: number) => {
-    if (confirm("Tem certeza que deseja inativar este produto?")) {
-      produtosHook.inativarProduto(id)
+    if (confirm("Tem certeza que deseja inativar este categoria?")) {
+      categoriaHook.inativarCategoria(id)
     }
   }
 
   const handleAddNew = () => {
-    setProdutoAtual(null)
+    setCategoriaAtual(null)
     setFormData({
-      proNome: "",
-      proQtd: 0,
-      proEstoqueMin: 0,
-      proSipac: "",
-      proUnId: 0,
-      proCategoriaId: 0
+      catProId: 0,
+      catProNome: ""
     })
     setDialogOpen(true)
   }
@@ -146,11 +106,11 @@ export default function ProdutosPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Package className="h-6 w-6" />
-          Gerenciamento de Produtos
+          Gerenciamento de Categoria
         </h1>
         <Button onClick={handleAddNew} className="bg-[#1e3a8a]">
           <Plus className="h-4 w-4 mr-2" />
-          Novo Produto
+          Nova categoria
         </Button>
       </div>
 
@@ -160,7 +120,7 @@ export default function ProdutosPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <Input
               type="text"
-              placeholder="Buscar produtos..."
+              placeholder="Buscar Categoria..."
               className="pl-10"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
@@ -172,38 +132,20 @@ export default function ProdutosPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4">Código</th>
                 <th className="text-left py-3 px-4">Nome</th>
-                <th className="text-left py-3 px-4">Unidade</th>
-                <th className="text-left py-3 px-4">Categoria</th>
-                <th className="text-left py-3 px-4">Estoque</th>
-                <th className="text-left py-3 px-4">Mínimo</th>
-                <th className="text-left py-3 px-4">Status</th>
                 <th className="text-left py-3 px-4">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {produtosFiltrados.map((produto) => (
-                <tr key={produto.proId} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">{produto.proSipac}</td>
-                  <td className="py-3 px-4">{produto.proNome}</td>
-                  <td className="py-3 px-4">{produto.proUn}</td>
-                  <td className="py-3 px-4">{produto.proCategoria}</td>
-                  <td className="py-3 px-4">{produto.proQtd}</td>
-                  <td className="py-3 px-4">{produto.proEstoqueMin}</td>
-                  <td className="py-3 px-4">
-                    {produto.isAbaixoMin ? (
-                      <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Baixo</span>
-                    ) : (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Normal</span>
-                    )}
-                  </td>
+              {categoriaFiltrados.map((categoria, index) => (
+                <tr key={index} className="border-b hover:bg-gray-50">
+                  <td className="py-3 px-4">{categoria.catProNome}</td>
                   <td className="py-3 px-4">
                     <div className="flex gap-2">
-                      <Button variant="outline" size="icon" onClick={() => handleEdit(produto)}>
+                      <Button variant="outline" size="icon" onClick={() => handleEdit(categoria)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="icon" onClick={() => handleDelete(produto.proId)}>
+                      <Button variant="outline" size="icon" onClick={() => handleDelete(categoria.catProId)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -218,85 +160,21 @@ export default function ProdutosPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{produtoAtual ? "Editar Produto" : "Novo Produto"}</DialogTitle>
+            <DialogTitle>{categoriaAtual ? "Editar categoria" : "Novo categoria"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              {/* <div className="space-y-2">
-                <Label htmlFor="codigo">Código</Label>
-                <Input id="codigo" name="codigo" value={formData.proId} onChange={handleInputChange} required />
-              </div> */}
-              <div className="space-y-2">
-                <Label htmlFor="categoria">Unidade</Label>
-                <Select value={formData.proUnId.toString()} onValueChange={handleUnidadeChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                  {
-                    unidadesHook.unidades.map((unidade, index) => {
-                      return <SelectItem key={index} value={unidade.unId.toString()}>{unidade.unNome} - {unidade.unSigla}</SelectItem>
-                    })
-                  }
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="categoria">Categoria</Label>
-                <Select value={formData.proCategoriaId.toString()} onValueChange={handleCategoriaChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                  {
-                    categoriaHook.categoria.map((categoria, index) => {
-                      return <SelectItem key={index} value={categoria.catProId.toString()}>{categoria.catProNome}</SelectItem>
-                    })
-                  }
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+
             <div className="space-y-2">
-              <Label htmlFor="nome">Nome do Produto</Label>
-              <Input id="nome" name="proNome" value={formData.proNome} onChange={handleInputChange} required />
+              <Label htmlFor="nome">Nome da categoria</Label>
+              <Input id="nome" name="catProNome" value={formData.catProNome} onChange={handleInputChange} required />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="nome">Código SIPAC</Label>
-              <Input id="nome" name="proSipac" value={formData.proSipac} onChange={handleInputChange} required />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="estoque">Estoque Atual</Label>
-                <Input
-                  id="estoque"
-                  name="proQtd"
-                  type="number"
-                  min="0"
-                  value={formData.proQtd}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="minimo">Estoque Mínimo</Label>
-                <Input
-                  id="minimo"
-                  name="proEstoqueMin"
-                  type="number"
-                  min="0"
-                  value={formData.proEstoqueMin}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-            </div>
+  
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancelar
               </Button>
               <Button type="submit" className="bg-[#1e3a8a]">
-                {produtoAtual ? "Atualizar" : "Cadastrar"}
+                {categoriaAtual ? "Atualizar" : "Cadastrar"}
               </Button>
             </div>
           </form>

@@ -25,7 +25,9 @@ export default function ProdutosPage() {
     proNome: "",
     proSipac: "",
     proUnId: 0,
-    proCategoriaId: 0,
+    proUnSigla: "",
+    proCategoriaId: null,
+    proCategoriaNome: "",
     proQtd: 0,
     proEstoqueMin: 0
   })
@@ -69,7 +71,9 @@ export default function ProdutosPage() {
         proNome: "",
         proSipac: "",
         proUnId: 0,
-        proCategoriaId: 0,
+        proUnSigla: "",
+        proCategoriaId: null,
+        proCategoriaNome: "",
         proQtd: 0,
         proEstoqueMin: 0
       });
@@ -110,14 +114,16 @@ export default function ProdutosPage() {
   }
 
   const handleEdit = (produto: ProdutoType) => {
-    //console.log(produto)
+    
     setProdutoAtual(produto)
     setFormData({
       proId: produto.proId,
       proNome: produto.proNome,
       proSipac: produto.proSipac,
       proUnId: produto.proUnId,
+      proUnSigla: produto.proUn,
       proCategoriaId: produto.proCategoriaId,
+      proCategoriaNome: produto.proCategoria,
       proQtd: produto.proQtd,
       proEstoqueMin: produto.proEstoqueMin
     })
@@ -138,7 +144,9 @@ export default function ProdutosPage() {
       proEstoqueMin: 0,
       proSipac: "",
       proUnId: 0,
-      proCategoriaId: 0
+      proUnSigla: "",
+      proCategoriaId: null,
+      proCategoriaNome: ""
     })
     setDialogOpen(true)
   }
@@ -247,7 +255,7 @@ export default function ProdutosPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="categoria">Categoria</Label>
-                <Select value={formData.proCategoriaId.toString()} onValueChange={handleCategoriaChange}>
+                <Select value={formData.proCategoriaId?.toString() ?? ""} onValueChange={handleCategoriaChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>

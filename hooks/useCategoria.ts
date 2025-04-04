@@ -22,12 +22,12 @@ export const useCategoria = (initialCategoria: CategoriaType[] = []) => {
         }
     }
 
-    const criarUnidade = async (dados: CategoriaType) => {
+    const criarCategoria = async (dados: CategoriaType) => {
         setLoading(true)
         try {
-            const novaUnidade = await CategoriaServices.criar(dados)
-            setCategoria(prev => [...prev, novaUnidade]); //Insiro no array de Categoria
-            return novaUnidade
+            const novaCategoria = await CategoriaServices.criar(dados)
+            setCategoria(prev => [...prev, novaCategoria]); //Insiro no array de Categoria
+            return novaCategoria
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erro ao criar Categoria")
             throw err
@@ -36,7 +36,7 @@ export const useCategoria = (initialCategoria: CategoriaType[] = []) => {
         }
     }
 
-    const atualizarUnidade = async(id: number, dados: CategoriaType) => {
+    const atualizarCategoria = async(id: number, dados: CategoriaType) => {
         setLoading(true)
         try {
             const categoriaAtualizada = await CategoriaServices.atualizar(id, dados)
@@ -54,7 +54,7 @@ export const useCategoria = (initialCategoria: CategoriaType[] = []) => {
         }
     }
 
-    const inativarUnidade = async (id: number) => {
+    const inativarCategoria = async (id: number) => {
         setLoading(true)
         try {
             await CategoriaServices.inativar(id)
@@ -72,9 +72,9 @@ export const useCategoria = (initialCategoria: CategoriaType[] = []) => {
         loading,
         error,
         listarCategoria,
-        criarUnidade,
-        atualizarUnidade,
-        inativarUnidade,
+        criarCategoria,
+        atualizarCategoria,
+        inativarCategoria,
         setError
     }
 }
