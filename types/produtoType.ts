@@ -1,5 +1,5 @@
 //Dados de interface, onde determino os tipos de objetos
-export type Produto = {
+export type ProdutoType = {
     proId: number
     proNome: string
     proSipac: string
@@ -15,7 +15,7 @@ export type Produto = {
   }
   
   //Criar o tipo do formulário do produto omitindo alguns campos
-export type FormProduto = {
+export type FormProdutoType = {
     proNome: string
     proSipac: string
     proUnId: number

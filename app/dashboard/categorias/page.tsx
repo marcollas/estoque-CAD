@@ -14,8 +14,6 @@ import { useProdutos } from "@/hooks/useProduto"
 import { useUnidades } from "@/hooks/useUnidade"
 import { useCategoria } from "@/hooks/useCategoria"
 import type { ProdutoType, FormProdutoType } from "@/types/produtoType"
-import Loading from "./loading"
-import { Textarea } from "@/components/ui/textarea"
 
 export default function ProdutosPage() {
   const [busca, setBusca] = useState("")
@@ -142,8 +140,6 @@ export default function ProdutosPage() {
     })
     setDialogOpen(true)
   }
-  if (produtosHook.loading) return <Loading />;
-  //if (produtosHook.error) return <ErrorAlert message={error} />;
 
   return (
     <div className="p-6">
@@ -187,8 +183,8 @@ export default function ProdutosPage() {
               </tr>
             </thead>
             <tbody>
-              {produtosFiltrados.map((produto, index) => (
-                <tr key={index} className="border-b hover:bg-gray-50">
+              {produtosFiltrados.map((produto) => (
+                <tr key={produto.proId} className="border-b hover:bg-gray-50">
                   <td className="py-3 px-4">{produto.proSipac}</td>
                   <td className="py-3 px-4">{produto.proNome}</td>
                   <td className="py-3 px-4">{produto.proUn}</td>
@@ -264,35 +260,36 @@ export default function ProdutosPage() {
             <div className="space-y-2">
               <Label htmlFor="nome">Nome do Produto</Label>
               <Input id="nome" name="proNome" value={formData.proNome} onChange={handleInputChange} required />
-            </div>            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="nome">Código SIPAC</Label>
-                <Input id="nome" name="proSipac" value={formData.proSipac} onChange={handleInputChange} required />
-              </div>
-              <div className="space-y-2">
-                  <Label htmlFor="minimo">Estoque Mínimo</Label>
-                  <Input
-                    id="minimo"
-                    name="proEstoqueMin"
-                    type="number"
-                    min="0"
-                    value={formData.proEstoqueMin}
-                    onChange={handleInputChange}
-                    required
-                  />
-              </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="observacao">Descrição do produto</Label>
-              <Textarea
-                id="observacao"
-                value={formData.proDescricao}
-                name="proDescricao"
-                onChange={() => (handleInputChange)}
-                placeholder="Informações adicionais sobre o produto"
-                rows={3}
-              />
+              <Label htmlFor="nome">Código SIPAC</Label>
+              <Input id="nome" name="proSipac" value={formData.proSipac} onChange={handleInputChange} required />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="estoque">Estoque Atual</Label>
+                <Input
+                  id="estoque"
+                  name="proQtd"
+                  type="number"
+                  min="0"
+                  value={formData.proQtd}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="minimo">Estoque Mínimo</Label>
+                <Input
+                  id="minimo"
+                  name="proEstoqueMin"
+                  type="number"
+                  min="0"
+                  value={formData.proEstoqueMin}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
             </div>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>

@@ -52,6 +52,18 @@ export default function Dashboard() {
               </Link>
             </li>
             <li>
+              <Link href="/dashboard/categorias" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+                <FileText className="h-5 w-5" />
+                {sidebarOpen && <span>Categorias</span>}
+              </Link>
+            </li>
+            <li>
+              <Link href="/dashboard/unidades" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+                <FileText className="h-5 w-5" />
+                {sidebarOpen && <span>Unidades</span>}
+              </Link>
+            </li>
+            <li>
               <Link
                 href="/dashboard/faculdades"
                 className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"

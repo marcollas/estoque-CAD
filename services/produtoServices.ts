@@ -1,8 +1,8 @@
 import apiClient from './api/apiCllient'
-import type { Produto, FormProduto } from '@/types/produtoType'
+import type { ProdutoType, FormProdutoType } from '@/types/produtoType'
 
 //Essa função formata os dados provenientes da API para envio ao backEnd
-const formatarDadosApi = (formData: FormProduto) =>{
+const formatarDadosApi = (formData: FormProdutoType) =>{
     return {
         proNome: formData.proNome,
         proSipac: formData.proSipac,
@@ -19,7 +19,7 @@ const formatarDadosApi = (formData: FormProduto) =>{
 }
 
 export const ProdutoServices = {
-    async listarTodos(): Promise<Produto[]> {
+    async listarTodos(): Promise<ProdutoType[]> {
         try {
             const response = await apiClient.get('/produto/')
             return response.data
@@ -30,7 +30,7 @@ export const ProdutoServices = {
         }
     },
 
-    async criar(dados: FormProduto): Promise<Produto>{
+    async criar(dados: FormProdutoType): Promise<ProdutoType>{
         try {
             const response = await apiClient.post('/produto/', formatarDadosApi(dados))
             return response.data
@@ -40,7 +40,7 @@ export const ProdutoServices = {
         }
     },
 
-    async atualizar(id: number, dados: FormProduto): Promise<Produto>{
+    async atualizar(id: number, dados: FormProdutoType): Promise<ProdutoType>{
         try {
             const response = await apiClient.put(`/produto/${id}`, formatarDadosApi(dados))
             return response.data
@@ -52,7 +52,8 @@ export const ProdutoServices = {
 
     async inativar(id: number): Promise<void>{
         try {
-            const response = await apiClient.put(`/produto/${id}`)
+            const response = await apiClient.put(`/produto/inativar/${id}`)
+            console.log(response)
             return response.data
         } catch (error) {
             console.log(error)

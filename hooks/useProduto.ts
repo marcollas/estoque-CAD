@@ -1,13 +1,12 @@
 // hooks/useProdutos.ts
 import { useState } from 'react';
 import { ProdutoServices } from '@/services/produtoServices';
-import type { Produto, FormProduto } from '@/types/produtoType';
+import type { ProdutoType, FormProdutoType } from '@/types/produtoType';
 
-export const useProdutos = (initialProdutos: Produto[] = []) => {
-  const [produtos, setProdutos] = useState<Produto[]>(initialProdutos);
+export const useProdutos = (initialProdutos: ProdutoType[] = []) => {
+  const [produtos, setProdutos] = useState<ProdutoType[]>(initialProdutos);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentProduto, setCurrentProduto] = useState<Produto | null>(null);
 
   // Listar todos os produtos
   const listarProdutos = async () => {
@@ -26,7 +25,7 @@ export const useProdutos = (initialProdutos: Produto[] = []) => {
   };
 
   // Criar novo produto
-  const criarProduto = async (dados: FormProduto) => {
+  const criarProduto = async (dados: FormProdutoType) => {
     setLoading(true);
     try {
       const novoProduto = await ProdutoServices.criar(dados);
@@ -41,16 +40,18 @@ export const useProdutos = (initialProdutos: Produto[] = []) => {
   };
 
   // Atualizar produto existente
-  const atualizarProduto = async (id: number, dados: FormProduto) => {
+  const atualizarProduto = async (id: number, dados: FormProdutoType) => {
     setLoading(true);
     try {
       const produtoAtualizado = await ProdutoServices.atualizar(id, dados);
       setProdutos(prev =>
         prev.map(produto =>
-          produto.proId === id ? produtoAtualizado : produto
+          produto.proId === id ? { 
+            ...produto, // Mantém todas as propriedades existentes
+            ...produtoAtualizado // Atualiza com os novos dados
+          } : produto
         )
       );
-      setCurrentProduto(null); // Limpa o produto em edição
       return produtoAtualizado;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao atualizar produto');
@@ -73,28 +74,14 @@ export const useProdutos = (initialProdutos: Produto[] = []) => {
       setLoading(false);
     }
   };
-
-  // Preparar produto para edição
-  const prepararEdicao = (produto: Produto) => {
-    setCurrentProduto(produto);
-  };
-
-  // Cancelar edição
-  const cancelarEdicao = () => {
-    setCurrentProduto(null);
-  };
-
   return {
     produtos,
     loading,
     error,
-    currentProduto,
     listarProdutos,
     criarProduto,
     atualizarProduto,
     inativarProduto,
-    prepararEdicao,
-    cancelarEdicao,
     setError // Permite limpar erros manualmente
   };
 };
