@@ -34,6 +34,12 @@ export default function Dashboard() {
               </Link>
             </li>
             <li>
+              <Link href="/dashboard/usuarios" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+                <Users className="h-5 w-5" />
+                {sidebarOpen && <span>Usuários</span>}
+              </Link>
+            </li>
+            <li>
               <Link href="/dashboard/requisitantes" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
                 <Package className="h-5 w-5" />
                 {sidebarOpen && <span>Requisitantes</span>}
@@ -84,12 +90,7 @@ export default function Dashboard() {
                 {sidebarOpen && <span>Relatórios</span>}
               </Link>
             </li>
-            <li>
-              <Link href="/dashboard/usuarios" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
-                <Users className="h-5 w-5" />
-                {sidebarOpen && <span>Usuários</span>}
-              </Link>
-            </li>
+       
             <li>
               <Link
                 href="/dashboard/configuracoes"

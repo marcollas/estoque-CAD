@@ -29,7 +29,8 @@ export default function ProdutosPage() {
     proCategoriaId: null,
     proCategoriaNome: "",
     proQtd: 0,
-    proEstoqueMin: 0
+    proEstoqueMin: 0,
+    proDescricao: ""
   })
 
   const produtosHook  = useProdutos()
@@ -75,7 +76,8 @@ export default function ProdutosPage() {
         proCategoriaId: null,
         proCategoriaNome: "",
         proQtd: 0,
-        proEstoqueMin: 0
+        proEstoqueMin: 0,
+        proDescricao: ""
       });
   
     } catch (error) {
@@ -91,12 +93,17 @@ export default function ProdutosPage() {
   )
 
   //Campo recebe o dados do formulário editado
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement> |  React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setFormData({
-      ...formData,
-      [name]: name === "proQtd" || name === "proEstoqueMin" ? Number.parseInt(value) : value,
-    })
+    setFormData(prev => ({
+      ...prev,
+      //Faço a verificação se é vazio ou Nan. Se for, substituo por zero
+      [name]: (name === "proQtd" || name === "proEstoqueMin")
+        ? value === "" || isNaN(Number(value)) 
+          ? 0  // Substitui por 0 se for vazio ou inválido
+          : Number(value)
+        : value
+    }));
   }
 
   const handleUnidadeChange = (unidade: string) => {
@@ -114,7 +121,6 @@ export default function ProdutosPage() {
   }
 
   const handleEdit = (produto: ProdutoType) => {
-    
     setProdutoAtual(produto)
     setFormData({
       proId: produto.proId,
@@ -125,7 +131,8 @@ export default function ProdutosPage() {
       proCategoriaId: produto.proCategoriaId,
       proCategoriaNome: produto.proCategoria,
       proQtd: produto.proQtd,
-      proEstoqueMin: produto.proEstoqueMin
+      proEstoqueMin: produto.proEstoqueMin,
+      proDescricao: produto.proDescricao
     })
     setDialogOpen(true)
   }
@@ -146,7 +153,8 @@ export default function ProdutosPage() {
       proUnId: 0,
       proUnSigla: "",
       proCategoriaId: null,
-      proCategoriaNome: ""
+      proCategoriaNome: "",
+      proDescricao: ""
     })
     setDialogOpen(true)
   }
@@ -234,10 +242,6 @@ export default function ProdutosPage() {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              {/* <div className="space-y-2">
-                <Label htmlFor="codigo">Código</Label>
-                <Input id="codigo" name="codigo" value={formData.proId} onChange={handleInputChange} required />
-              </div> */}
               <div className="space-y-2">
                 <Label htmlFor="categoria">Unidade</Label>
                 <Select value={formData.proUnId.toString()} onValueChange={handleUnidadeChange}>
@@ -285,9 +289,8 @@ export default function ProdutosPage() {
                     name="proEstoqueMin"
                     type="number"
                     min="0"
-                    value={formData.proEstoqueMin}
+                    value={formData.proEstoqueMin || ""} 
                     onChange={handleInputChange}
-                    required
                   />
               </div>
             </div>
@@ -297,7 +300,7 @@ export default function ProdutosPage() {
                 id="observacao"
                 value={formData.proDescricao}
                 name="proDescricao"
-                onChange={() => (handleInputChange)}
+                onChange={handleInputChange}
                 placeholder="Informações adicionais sobre o produto"
                 rows={3}
               />

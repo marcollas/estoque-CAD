@@ -28,7 +28,6 @@ export const useUnidades = (initialUnidades: UnidadeType[] = []) => {
         try {
             const novaUnidade = await UnidadeServices.criar(dados)
             setUnidades(prev => [...prev, novaUnidade]); //Insiro no array de unidades
-            console.log(novaUnidade)
             return novaUnidade
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erro ao criar unidades")
