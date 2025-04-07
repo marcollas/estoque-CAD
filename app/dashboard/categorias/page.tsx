@@ -7,6 +7,7 @@ import { Package, Plus, Search, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import Loading from "@/components/Loading"
 import { Label } from "@/components/ui/label"
 import { useCategoria } from "@/hooks/useCategoria"
 import type { CategoriaType } from "@/types/categoriaType"
@@ -100,6 +101,8 @@ export default function categoriaPage() {
     })
     setDialogOpen(true)
   }
+
+  if (categoriaHook.loading) return <Loading />;
 
   return (
     <div className="p-6">

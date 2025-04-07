@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { url, port } from '../../../configApi.json'
 import { useUnidades } from "@/hooks/useUnidade"
+import Loading from "@/components/Loading"
 import type { UnidadeType } from "@/types/unidadeType"
 
 export default function unidadesPage() {
@@ -106,6 +107,7 @@ export default function unidadesPage() {
     })
     setDialogOpen(true)
   }
+  if (unidadesHook.loading) return <Loading />;
 
   return (
     <div className="p-6">

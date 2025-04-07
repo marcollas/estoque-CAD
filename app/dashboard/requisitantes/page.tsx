@@ -10,10 +10,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { url, port } from '../../../configApi.json'
+import Loading from "@/components/Loading"
 import { useRequisitante } from "@/hooks/useRequisitante"
 import { useFaculdade } from "@/hooks/useFaculdade"
 import type { RequisitanteType } from "@/types/requisitanteType"
-import Loading from "./loading"
 
 export default function RequisitantesPage() {
   const [busca, setBusca] = useState("")

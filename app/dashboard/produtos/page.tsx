@@ -14,7 +14,7 @@ import { useProdutos } from "@/hooks/useProduto"
 import { useUnidades } from "@/hooks/useUnidade"
 import { useCategoria } from "@/hooks/useCategoria"
 import type { ProdutoType, FormProdutoType } from "@/types/produtoType"
-import Loading from "./loading"
+import Loading from "@/components/Loading"
 import { Textarea } from "@/components/ui/textarea"
 
 export default function ProdutosPage() {
