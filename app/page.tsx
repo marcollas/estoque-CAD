@@ -39,10 +39,9 @@ export default function LoginPage() {
       }
       
     }catch(error){
+      alert("Erro de autenticação")
       console.log("errorrrrr" + error)
     }
-
-    //router.push("/dashboard")
   }
 
   return (
