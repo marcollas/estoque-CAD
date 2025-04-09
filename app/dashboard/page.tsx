@@ -1,9 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Package, FileText, ShoppingCart, Users, BarChart2, Settings, LogOut, BookOpen, Clipboard } from "lucide-react"
+import { useError } from "@/contexts/ErrorContext"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import ErrorNotification from "@/components/ErrorNotification"
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -13,10 +15,16 @@ export default function Dashboard() {
     // Implementar lógica de logout
     router.push("/")
   }
+  const error = useError()
+  useEffect(() => {
+    error.addError("Mensagem de teste")
+  }, []) // <- array vazio = executa só na primeira renderização
+
 
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
+      <ErrorNotification />
       <aside className={`bg-[#1e3a8a] text-white ${sidebarOpen ? "w-64" : "w-20"} transition-all duration-300`}>
         <div className="p-4 flex justify-between items-center">
           <h2 className={`font-bold ${sidebarOpen ? "block" : "hidden"}`}>Almoxarifado</h2>

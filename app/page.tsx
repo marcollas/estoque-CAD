@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { User, Lock, LogIn } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { AuthService } from "@/services/authServices"
 import { url, port} from '../configApi.json'
 import axios from "axios"
 
@@ -13,37 +14,21 @@ export default function LoginPage() {
   const [senha, setSenha] = useState("")
   const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
+    const handleLogin = async (e: React.FormEvent) => {
+      e.preventDefault()
     
-    try{
-      const response = await axios.post(`${url}:${port}/login`, 
-        {
-          usuLogin:matricula,
-          usuSenha:senha
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true})
-
-      if(response.status == 200){
-        let key = "Authorization"
-        let token = response.headers.authorization
-
-        window.localStorage.setItem(key, token)
+      try {
+        const { token } = await AuthService.login({
+          usuLogin: matricula,
+          usuSenha: senha,
+        })
+    
+        localStorage.setItem("Authorization", token)
         router.push("/dashboard")
-      }else{
-        alert("Erro de autenticação")
+      } catch (error) {
+        console.error(error)
       }
-      
-    }catch(error){
-      alert("Erro de autenticação")
-      console.log("errorrrrr" + error)
     }
-  }
-
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <header className="p-4 border-b">

@@ -1,3 +1,5 @@
+'use client'
+
 import { useError } from "@/contexts/ErrorContext";
 import '../styles/erroNotification.css'
 
@@ -17,7 +19,7 @@ const ErrorNotification = () => {
             className={`error-message ${error.tipo || 'error'}`}
             onClick={() => removeError(error)}
           >
-            {error.menssagem}
+            {error.mensagem}
             <button 
               onClick={(e) => {
                 e.stopPropagation();

@@ -1,9 +1,11 @@
+"use client"
+
 import {createContext, useState, useContext, ReactNode} from 'react'
 
 type ErrorType = {
     id?: string
-    menssagem: string
-    tipo: 'erro' | 'alerta' | 'info' 
+    mensagem: string
+    tipo: 'error' | 'alerta' | 'info' 
 }
 
 //Inicializo o context com valores padrãos
@@ -34,7 +36,7 @@ export const ErrorProvider = ({children} : ErrorProviderProps) =>{
     */
 
     const addError = (error: ErrorType | string) => {
-        const errorObj: ErrorType = typeof error === 'string' ? {menssagem: error, tipo: 'erro'} : error //Aqui é feito uma inserção condicional, onde se o tipo passado for string, simplesmente adiciona a mesmo a um objeto de erros
+        const errorObj: ErrorType = typeof error === 'string' ? {mensagem: error, tipo: 'error'} : error //Aqui é feito uma inserção condicional, onde se o tipo passado for string, simplesmente adiciona a mesmo a um objeto de erros
         
         //É preciso criar um id para poder acessar os erros mais facilmente. 
         const errorComId = {...errorObj, id: errorObj.id || Date.now().toString()}
@@ -52,7 +54,7 @@ export const ErrorProvider = ({children} : ErrorProviderProps) =>{
 
     const removeError = (errorRemove: ErrorType) => {
         setErrors(prev => prev.filter(error =>
-            error.id !== errorRemove.id || error.menssagem != errorRemove.menssagem
+            error.id !== errorRemove.id || error.mensagem != errorRemove.mensagem
         ))
     }
 

@@ -1,4 +1,8 @@
+// app/layout.tsx
 import type { Metadata } from 'next'
+import { ErrorProvider } from '@/contexts/ErrorContext'
+import ErrorNotification from '@/components/ErrorNotification'
+import ApiErrorHandler from '@/components/ApiErrorHandler'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -9,12 +13,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ErrorProvider>
+          {/* Componente que escuta e dispara erros da API */}
+          <ApiErrorHandler />
+
+          {/* Notificações globais de erro */}
+          <ErrorNotification />
+
+          {/* Todo o resto da sua aplicação */}
+          {children}
+        </ErrorProvider>
+      </body>
     </html>
   )
 }

@@ -1,6 +1,11 @@
 // Esse componente terá como propósito, a configuração global do axios, a qual apontará para a API em Spring
 import axios from "axios";
 
+let errorHandler: ((msg: string) => void) | null = null;
+
+export const setErrorHandler = (handler: (msg: string) => void) => {
+  errorHandler = handler;
+}
 const apiClient = axios.create({
     baseURL: `http://127.0.0.1:8080`,
     timeout: 10000,
@@ -19,13 +24,18 @@ apiClient.interceptors.request.use((config) => {
 })
 
 //Interceptor para as resposta da API
-apiClient.interceptors.response.use((response) => response, (error) => {
-      // Transforma erros específicos da API
-      if (error.response?.status === 401) {
-        console.log("Usuário não autenticado") //Implementar controle de rotos
-      }
-      return Promise.reject(error);
+// Interceptor de resposta
+apiClient.interceptors.response.use(
+  response => response,
+  error => {
+    const msg = error.response?.data?.mensagem || "Erro inesperado na API";
+
+    if (errorHandler) {
+      errorHandler(msg);
     }
-);
+
+    return Promise.reject(error);
+  }
+)
 
 export default apiClient;
