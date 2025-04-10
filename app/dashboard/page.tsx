@@ -15,10 +15,10 @@ export default function Dashboard() {
     // Implementar lógica de logout
     router.push("/")
   }
-  const error = useError()
-  useEffect(() => {
-    error.addError("Mensagem de teste")
-  }, []) // <- array vazio = executa só na primeira renderização
+  // const error = useError()
+  // // useEffect(() => {
+  // //   error.addError("Mensagem de teste")
+  // // }, []) // <- array vazio = executa só na primeira renderização
 
 
   return (
@@ -108,15 +108,18 @@ export default function Dashboard() {
                 {sidebarOpen && <span>Configurações</span>}
               </Link>
             </li>
+
+            <div className="absolute bottom-0 w-full p-4">
+              <button onClick={handleLogout} className="flex items-center gap-3 p-3 w-full rounded-md hover:bg-blue-800">
+                <LogOut className="h-5 w-5" />
+                {sidebarOpen && <span>Sair</span>}
+              </button>
+            </div>
           </ul>
+          
         </nav>
 
-        <div className="absolute bottom-0 w-full p-4">
-          <button onClick={handleLogout} className="flex items-center gap-3 p-3 w-full rounded-md hover:bg-blue-800">
-            <LogOut className="h-5 w-5" />
-            {sidebarOpen && <span>Sair</span>}
-          </button>
-        </div>
+        
       </aside>
 
       {/* Main content */}

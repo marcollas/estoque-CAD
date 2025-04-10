@@ -15,46 +15,24 @@ const formatarDadosApi = (formData: RequisitanteType) =>{
 
 export const RequisitanteServices = {
     async listarTodos(): Promise<RequisitanteType[]> {
-        try {
-            const response = await apiClient.get('/requisitante/')
-            return response.data
+        const response = await apiClient.get('/requisitante/')
+        return response.data
             
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao listar requisitantes")
-        }
     },
 
     async criar(dados: RequisitanteType): Promise<RequisitanteType>{
-        try {
-            const response = await apiClient.post('/requisitante/', formatarDadosApi(dados))
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao cadastrar requisitantes")
-        }
+        const response = await apiClient.post('/requisitante/', formatarDadosApi(dados))
+        return response.data
+        
     },
 
     async atualizar(id: number, dados: RequisitanteType): Promise<RequisitanteType>{
-        
-        try {
-            const response = await apiClient.put(`/requisitante/${id}`, formatarDadosApi(dados))
-            console.log(dados)
-            console.log(response.data)
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao atualizar requisitantes")
-        }
+        const response = await apiClient.put(`/requisitante/${id}`, formatarDadosApi(dados))
+        return response.data
     },
 
     async inativar(id: number): Promise<void>{
-        try {
-            const response = await apiClient.put(`/requisitante/inativar/${id}`)
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao inativar requisitantes")
-        }
+        const response = await apiClient.put(`/requisitante/inativar/${id}`)
+        return response.data
     }
 }

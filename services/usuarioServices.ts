@@ -4,14 +4,8 @@ import type { UsuarioType } from "@/types/usuarioype";
 
 export const UsuarioServices = {
     async listarTodos(): Promise<UsuarioType[]> {
-        try {
-            const response = await apiClient.get('/usuario/')
-            return response.data
-            
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao listar usuarios")
-        }
+        const response = await apiClient.get('/usuario/')
+        return response.data
     },
 
     async criar(dados: UsuarioType): Promise<UsuarioType>{
@@ -20,13 +14,8 @@ export const UsuarioServices = {
         }else{
             dados.usuPerfil = 1
         }
-        try {
-            const response = await apiClient.post('/usuario/', dados)
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao cadastrar usuario")
-        }
+        const response = await apiClient.post('/usuario/', dados)
+        return response.data
     },
 
     async atualizar(id: number, dados: UsuarioType): Promise<UsuarioType>{
@@ -35,22 +24,12 @@ export const UsuarioServices = {
         }else{
             dados.usuPerfil = 1
         }
-        try {
-            const response = await apiClient.put(`/usuario/${id}`, dados)
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao atualizar usuario")
-        }
+        const response = await apiClient.put(`/usuario/${id}`, dados)
+        return response.data
     },
 
     async inativar(id: number): Promise<void>{
-        try {
-            const response = await apiClient.put(`/usuario/inativar/${id}`)
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao inativar usuario")
-        }
+        const response = await apiClient.put(`/usuario/inativar/${id}`)
+        return response.data
     }
 }

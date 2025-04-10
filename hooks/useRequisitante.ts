@@ -2,22 +2,22 @@
 import { useState } from 'react';
 import { RequisitanteServices } from '@/services/requisitanteServices';
 import type { RequisitanteType } from '@/types/requisitanteType';
+import { useError } from '@/contexts/ErrorContext';
 
 export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) => {
   const [requisitante, setRequisitante] = useState<RequisitanteType[]>(initialRequisitante);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {addError} = useError()
 
   // Listar todos os Requisitante
   const listarRequisitante = async () => {
     setLoading(true);
-    setError(null);
     try {
       const data = await RequisitanteServices.listarTodos();
       setRequisitante(data);
       return data;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar Requisitante');
+      addError(err instanceof Error ? err.message : 'Erro ao carregar Requisitante');
       throw err;
     } finally {
       setLoading(false);
@@ -32,7 +32,7 @@ export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) =>
       setRequisitante(prev => [...prev, novoRequisitante]);
       return novoRequisitante;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao criar Requisitante');
+      addError(err instanceof Error ? err.message : 'Erro ao criar Requisitante');
       throw err;
     } finally {
       setLoading(false);
@@ -54,7 +54,7 @@ export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) =>
       );
       return requisitanteAtualizado;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao atualizar Requisitante');
+      addError(err instanceof Error ? err.message : 'Erro ao atualizar Requisitante');
       throw err;
     } finally {
       setLoading(false);
@@ -68,7 +68,7 @@ export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) =>
       await RequisitanteServices.inativar(id);
       setRequisitante(prev => prev.filter(requisitante => requisitante.reqId !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao inativar Requisitante');
+      addError(err instanceof Error ? err.message : 'Erro ao inativar Requisitante');
       throw err;
     } finally {
       setLoading(false);
@@ -77,11 +77,9 @@ export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) =>
   return {
     requisitante,
     loading,
-    error,
     listarRequisitante,
     criarRequisitante,
     atualizarRequisitante,
-    inativarRequisitante,
-    setError // Permite limpar erros manualmente
+    inativarRequisitante
   };
 };

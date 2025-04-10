@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { UsuarioServices } from "@/services/usuarioServices";
 import { UsuarioType } from "@/types/usuarioype";
+import { useError } from '@/contexts/ErrorContext';
 
 export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
     const [usuario, setUsuario] = useState<UsuarioType[]>(initialUsuario)
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const {addError} = useError()
     
     const listarUsuario = async () => {
         setLoading(true)
-        setError(null)
         try{
             const data = await UsuarioServices.listarTodos()
             setUsuario(data)
-            setError(null)
+
         }catch(err){
-            setError(err instanceof Error ? err.message : "Erro ao carregar usuario")
+            addError(err instanceof Error ? err.message : "Erro ao carregar usuario")
             throw err
         }finally{
             setLoading(false)
@@ -29,7 +29,7 @@ export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
             setUsuario(prev => [...prev, novaUsuario]); //Insiro no array de Usuario
             return novaUsuario
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erro ao criar Usuario")
+            addError(err instanceof Error ? err.message : "Erro ao criar Usuario")
             throw err
         }finally{
             setLoading(false)
@@ -47,7 +47,7 @@ export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
             ))
             return usuarioAtualizada
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erro ao atualizar Usuario")
+            addError(err instanceof Error ? err.message : "Erro ao atualizar Usuario")
             throw err
         }finally{
             setLoading(false)
@@ -60,7 +60,7 @@ export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
             await UsuarioServices.inativar(id)
             setUsuario(prev => prev.filter(usuario => usuario.usuId !== id))
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erro ao atualizar Usuario")
+            addError(err instanceof Error ? err.message : "Erro ao atualizar Usuario")
             throw err
         }finally{
             setLoading(false)
@@ -70,11 +70,9 @@ export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
     return {
         usuario,
         loading,
-        error,
         listarUsuario,
         criarUsuario,
         atualizarUsuario,
-        inativarUsuario,
-        setError
+        inativarUsuario
     }
 }

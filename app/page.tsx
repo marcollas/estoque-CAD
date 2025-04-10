@@ -6,9 +6,7 @@ import { useState } from "react"
 import { User, Lock, LogIn } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { AuthService } from "@/services/authServices"
-import { url, port} from '../configApi.json'
-import axios from "axios"
-
+import { useError } from "@/contexts/ErrorContext"
 export default function LoginPage() {
   const [matricula, setMatricula] = useState("")
   const [senha, setSenha] = useState("")
@@ -26,9 +24,13 @@ export default function LoginPage() {
         localStorage.setItem("Authorization", token)
         router.push("/dashboard")
       } catch (error) {
-        console.error(error)
+        const erroMsg = error instanceof Error ? error.message : "Erro ao autenticar"
+        alert(erroMsg)
+        erro.addError(erroMsg)
       }
     }
+
+    const erro = useError()
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <header className="p-4 border-b">

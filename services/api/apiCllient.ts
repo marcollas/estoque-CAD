@@ -29,8 +29,7 @@ apiClient.interceptors.response.use(
   response => response,
   error => {
     const msg = error.response?.data?.mensagem || "Erro inesperado na API";
-
-    if (errorHandler) {
+    if (errorHandler && error.response?.data?.status != 401) {
       errorHandler(msg);
     }
 

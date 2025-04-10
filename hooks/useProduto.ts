@@ -2,22 +2,22 @@
 import { useState } from 'react';
 import { ProdutoServices } from '@/services/produtoServices';
 import type { ProdutoType, FormProdutoType } from '@/types/produtoType';
+import { useError } from '@/contexts/ErrorContext';
 
 export const useProdutos = (initialProdutos: ProdutoType[] = []) => {
   const [produtos, setProdutos] = useState<ProdutoType[]>(initialProdutos);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {addError} = useError()
 
   // Listar todos os produtos
   const listarProdutos = async () => {
     setLoading(true);
-    setError(null);
     try {
       const data = await ProdutoServices.listarTodos();
       setProdutos(data);
       return data;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar produtos');
+      addError(err instanceof Error ? err.message : 'Erro ao carregar produtos');
       throw err;
     } finally {
       setLoading(false);
@@ -32,7 +32,7 @@ export const useProdutos = (initialProdutos: ProdutoType[] = []) => {
       setProdutos(prev => [...prev, novoProduto]);
       return novoProduto;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao criar produto');
+      addError(err instanceof Error ? err.message : 'Erro ao criar produto');
       throw err;
     } finally {
       setLoading(false);
@@ -54,7 +54,7 @@ export const useProdutos = (initialProdutos: ProdutoType[] = []) => {
       );
       return produtoAtualizado;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao atualizar produto');
+      addError(err instanceof Error ? err.message : 'Erro ao atualizar produto');
       throw err;
     } finally {
       setLoading(false);
@@ -68,7 +68,7 @@ export const useProdutos = (initialProdutos: ProdutoType[] = []) => {
       await ProdutoServices.inativar(id);
       setProdutos(prev => prev.filter(produto => produto.proId !== id));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao inativar produto');
+      addError(err instanceof Error ? err.message : 'Erro ao inativar produto');
       throw err;
     } finally {
       setLoading(false);
@@ -77,11 +77,9 @@ export const useProdutos = (initialProdutos: ProdutoType[] = []) => {
   return {
     produtos,
     loading,
-    error,
     listarProdutos,
     criarProduto,
     atualizarProduto,
-    inativarProduto,
-    setError // Permite limpar erros manualmente
+    inativarProduto
   };
 };

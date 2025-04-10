@@ -1,4 +1,6 @@
+import axios from "axios"
 import apiClient from "./api/apiCllient"
+import type { AxiosError } from "axios"
 
 export interface LoginRequest {
   usuLogin: string
@@ -11,19 +13,27 @@ export interface LoginResponse {
 
 export const AuthService = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await apiClient.post("/login", credentials, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    })
+    try {
+      const response = await apiClient.post("/login", credentials, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      })
 
-    const token = response.headers.authorization
+      const token = response.headers.authorization
 
-    if (!token) {
-      throw new Error("Token não fornecido pelo servidor")
+      if (!token) {
+        throw new Error("Token não fornecido pelo servidor")
+      }
+
+      return { token }
+    } catch (error) {
+      const err = error as AxiosError<any>
+
+      // Tenta extrair mensagem personalizada do backend
+      const mensagem = err.response?.data?.message || "Erro ao autenticar"
+      throw new Error(mensagem)
     }
-
-    return { token }
   },
 }

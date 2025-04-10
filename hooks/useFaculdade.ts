@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { FaculdadeServices } from "@/services/faculdadeServices";
 import { FaculdadeType } from "@/types/faculdadeType";
+import { useError } from "@/contexts/ErrorContext";
 
 export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
     const [faculdade, setFaculdade] = useState<FaculdadeType[]>(initialFaculdade)
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const {addError} = useError()
     
     const listarFaculdade = async () => {
         setLoading(true)
-        setError(null)
         try{
             const data = await FaculdadeServices.listarTodas()
             setFaculdade(data)
-            setError(null)
+
         }catch(err){
-            setError(err instanceof Error ? err.message : "Erro ao carregar Faculdade")
+            addError(err instanceof Error ? err.message : "Erro ao carregar Faculdade")
             throw err
         }finally{
             setLoading(false)
@@ -29,7 +29,7 @@ export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
             setFaculdade(prev => [...prev, novaFaculdade]); //Insiro no array de Faculdade
             return novaFaculdade
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erro ao criar Faculdade")
+            addError(err instanceof Error ? err.message : "Erro ao criar Faculdade")
             throw err
         }finally{
             setLoading(false)
@@ -47,7 +47,7 @@ export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
             ))
             return faculdadeAtualizada
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erro ao atualizar Faculdade")
+            addError(err instanceof Error ? err.message : "Erro ao atualizar Faculdade")
             throw err
         }finally{
             setLoading(false)
@@ -60,7 +60,7 @@ export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
             await FaculdadeServices.inativar(id)
             setFaculdade(prev => prev.filter(faculdade => faculdade.facId !== id))
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erro ao atualizar Faculdade")
+            addError(err instanceof Error ? err.message : "Erro ao atualizar Faculdade")
             throw err
         }finally{
             setLoading(false)
@@ -70,11 +70,9 @@ export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
     return {
         faculdade,
         loading,
-        error,
         listarFaculdade,
         criarFaculdade,
         atualizarFaculdade,
         inativarFaculdade,
-        setError
     }
 }

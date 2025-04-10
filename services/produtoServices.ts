@@ -20,43 +20,25 @@ const formatarDadosApi = (formData: FormProdutoType) =>{
 
 export const ProdutoServices = {
     async listarTodos(): Promise<ProdutoType[]> {
-        try {
-            const response = await apiClient.get('/produto/')
-            return response.data
-            
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao listar produtos")
-        }
+        const response = await apiClient.get('/produto/')
+        return response.data
     },
 
     async criar(dados: FormProdutoType): Promise<ProdutoType>{
-        try {
-            const response = await apiClient.post('/produto/', formatarDadosApi(dados))
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao cadastrar produtos")
-        }
+        const response = await apiClient.post('/produto/', formatarDadosApi(dados))
+        return response.data
+       
     },
 
     async atualizar(id: number, dados: FormProdutoType): Promise<ProdutoType>{
-        try {
-            const response = await apiClient.put(`/produto/${id}`, formatarDadosApi(dados))
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao atualizar produtos")
-        }
+        const response = await apiClient.put(`/produto/${id}`, formatarDadosApi(dados))
+        return response.data
+       
     },
 
     async inativar(id: number): Promise<void>{
-        try {
-            const response = await apiClient.put(`/produto/inativar/${id}`)
-            return response.data
-        } catch (error) {
-            console.log(error)
-            throw new Error("ocorreu um erro ao inativar produtos")
-        }
+        const response = await apiClient.put(`/produto/inativar/${id}`)
+        return response.data
+       
     }
 }

@@ -1,21 +1,20 @@
 import { useState } from "react";
 import { CategoriaServices } from "@/services/categoriaServices";
 import { CategoriaType } from "@/types/categoriaType";
+import { useError } from "@/contexts/ErrorContext";
 
 export const useCategoria = (initialCategoria: CategoriaType[] = []) => {
     const [categoria, setCategoria] = useState<CategoriaType[]>(initialCategoria)
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const {addError} = useError()
     
     const listarCategoria = async () => {
         setLoading(true)
-        setError(null)
         try{
             const data = await CategoriaServices.listarTodas()
             setCategoria(data)
-            setError(null)
         }catch(err){
-            setError(err instanceof Error ? err.message : "Erro ao carregar Categoria")
+            addError(err instanceof Error ? err.message : "Erro ao atualizar categoria")
             throw err
         }finally{
             setLoading(false)
@@ -29,7 +28,7 @@ export const useCategoria = (initialCategoria: CategoriaType[] = []) => {
             setCategoria(prev => [...prev, novaCategoria]); //Insiro no array de Categoria
             return novaCategoria
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erro ao criar Categoria")
+            addError(err instanceof Error ? err.message : "Erro ao criar Categoria")
             throw err
         }finally{
             setLoading(false)
@@ -47,7 +46,7 @@ export const useCategoria = (initialCategoria: CategoriaType[] = []) => {
             ))
             return categoriaAtualizada
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erro ao atualizar categoria")
+            addError(err instanceof Error ? err.message : "Erro ao atualizar categoria")
             throw err
         }finally{
             setLoading(false)
@@ -60,7 +59,7 @@ export const useCategoria = (initialCategoria: CategoriaType[] = []) => {
             await CategoriaServices.inativar(id)
             setCategoria(prev => prev.filter(categoria => categoria.catProId !== id))
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erro ao atualizar categoria")
+            addError(err instanceof Error ? err.message : "Erro ao atualizar categoria")
             throw err
         }finally{
             setLoading(false)
@@ -70,11 +69,9 @@ export const useCategoria = (initialCategoria: CategoriaType[] = []) => {
     return {
         categoria,
         loading,
-        error,
         listarCategoria,
         criarCategoria,
         atualizarCategoria,
-        inativarCategoria,
-        setError
+        inativarCategoria
     }
 }
