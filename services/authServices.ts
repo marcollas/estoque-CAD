@@ -1,6 +1,7 @@
 import axios from "axios"
 import apiClient from "./api/apiCllient"
 import type { AxiosError } from "axios"
+import { UsuarioType } from "@/types/usuarioype"
 
 export interface LoginRequest {
   usuLogin: string
@@ -35,5 +36,14 @@ export const AuthService = {
       const mensagem = err.response?.data?.message || "Erro ao autenticar"
       throw new Error(mensagem)
     }
+  },
+
+  async validarUsuario(): Promise<UsuarioType> {
+    const response = await apiClient.get('/auth/validarToken', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('Authorization')}`,
+      },
+    })
+    return response.data
   },
 }
