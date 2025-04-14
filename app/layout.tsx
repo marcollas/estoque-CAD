@@ -1,6 +1,7 @@
 // app/layout.tsx
 import type { Metadata } from 'next'
 import { ErrorProvider } from '@/contexts/ErrorContext'
+import { AuthProvider } from '@/contexts/UsuarioContext'
 import ErrorNotification from '@/components/ErrorNotification'
 import ApiErrorHandler from '@/components/ApiErrorHandler'
 import './globals.css'
@@ -19,15 +20,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        {/* Provider de erros */}
         <ErrorProvider>
-          {/* Componente que escuta e dispara erros da API */}
-          <ApiErrorHandler />
+          {/* Provider com as informações do usuário */}
+          <AuthProvider>
+            {/* Componente que escuta e dispara erros da API */}
+            <ApiErrorHandler />
 
-          {/* Notificações globais de erro */}
-          <ErrorNotification />
+            {/* Notificações globais de erro */}
+            <ErrorNotification />
 
-          {/* Todo o resto da sua aplicação */}
-          {children}
+            {/* Todo o resto da sua aplicação */}
+            {children}
+          </AuthProvider>
         </ErrorProvider>
       </body>
     </html>

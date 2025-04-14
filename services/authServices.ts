@@ -38,12 +38,22 @@ export const AuthService = {
     }
   },
 
-  async validarUsuario(): Promise<UsuarioType> {
-    const response = await apiClient.get('/auth/validarToken', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('Authorization')}`,
-      },
-    })
-    return response.data
-  },
+  async validarToken(token: string): Promise<UsuarioType>{
+    console.log("Opa")
+    try {
+      const response = await apiClient.post("/auth/validarToken", 
+        {},
+        {headers: {
+          Authorization: `Bearer ${token}`
+        }}
+      )
+      return response.data
+    } catch (error) {
+      const err = error as AxiosError<any>
+      const mensagem = err.response?.data?.message || "Erro ao autenticar"
+      throw new Error(mensagem)
+    }
+  }
+
+  
 }

@@ -11,7 +11,7 @@ export default function ApiErrorHandler() {
   useEffect(() => {
     setErrorHandler((errorMessage: string) => {
       addError({
-        mensagem: errorMessage, // Corrigido de "menssagem" para "mensagem"
+        mensagem: errorMessage, 
         tipo: 'error',
         id: Date.now().toString()
       })

@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import type React from "react"
 
@@ -9,15 +9,17 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { url, port } from '../../../configApi.json'
 import { useProdutos } from "@/hooks/useProduto"
 import { useUnidades } from "@/hooks/useUnidade"
 import { useCategoria } from "@/hooks/useCategoria"
 import type { ProdutoType, FormProdutoType } from "@/types/produtoType"
 import Loading from "@/components/Loading"
 import { Textarea } from "@/components/ui/textarea"
+import ProtectedRoute from "@/components/ProtectedRoutes"
+import { useAuth } from "@/contexts/UsuarioContext"
 
 export default function ProdutosPage() {
+  const {isAutenticado, usuario} = useAuth()
   const [busca, setBusca] = useState("")
   const [produtoAtual, setProdutoAtual] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -50,8 +52,12 @@ export default function ProdutosPage() {
       }
     }
   
-    fetchData()
-  }, [])
+    //Esse IF é implementado pois o sistema faz a consulta no back end sem antes o usuário estar logado. Desse modo, só irá fazer assim que o usuário estiver logado
+    if(isAutenticado){
+      fetchData()
+    }
+    
+  }, [isAutenticado])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,161 +168,163 @@ export default function ProdutosPage() {
   //if (produtosHook.error) return <ErrorAlert message={error} />;
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Package className="h-6 w-6" />
-          Gerenciamento de Produtos
-        </h1>
-        <Button onClick={handleAddNew} className="bg-[#1e3a8a]">
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Produto
-        </Button>
-      </div>
+    <ProtectedRoute>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Package className="h-6 w-6" />
+            Gerenciamento de Produtos
+          </h1>
+          <Button onClick={handleAddNew} className="bg-[#1e3a8a]">
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Produto
+          </Button>
+        </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Buscar produtos..."
-              className="pl-10"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-            />
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="flex gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Buscar produtos..."
+                className="pl-10"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4">Código</th>
+                  <th className="text-left py-3 px-4">Nome</th>
+                  <th className="text-left py-3 px-4">Unidade</th>
+                  <th className="text-left py-3 px-4">Categoria</th>
+                  <th className="text-left py-3 px-4">Estoque</th>
+                  <th className="text-left py-3 px-4">Mínimo</th>
+                  <th className="text-left py-3 px-4">Status</th>
+                  <th className="text-left py-3 px-4">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {produtosFiltrados.map((produto, index) => (
+                  <tr key={index} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4">{produto.proSipac}</td>
+                    <td className="py-3 px-4">{produto.proNome}</td>
+                    <td className="py-3 px-4">{produto.proUn}</td>
+                    <td className="py-3 px-4">{produto.proCategoria}</td>
+                    <td className="py-3 px-4">{produto.proQtd}</td>
+                    <td className="py-3 px-4">{produto.proEstoqueMin}</td>
+                    <td className="py-3 px-4">
+                      {produto.isAbaixoMin ? (
+                        <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Baixo</span>
+                      ) : (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Normal</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="icon" onClick={() => handleEdit(produto)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" onClick={() => handleDelete(produto.proId)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-3 px-4">Código</th>
-                <th className="text-left py-3 px-4">Nome</th>
-                <th className="text-left py-3 px-4">Unidade</th>
-                <th className="text-left py-3 px-4">Categoria</th>
-                <th className="text-left py-3 px-4">Estoque</th>
-                <th className="text-left py-3 px-4">Mínimo</th>
-                <th className="text-left py-3 px-4">Status</th>
-                <th className="text-left py-3 px-4">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {produtosFiltrados.map((produto, index) => (
-                <tr key={index} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">{produto.proSipac}</td>
-                  <td className="py-3 px-4">{produto.proNome}</td>
-                  <td className="py-3 px-4">{produto.proUn}</td>
-                  <td className="py-3 px-4">{produto.proCategoria}</td>
-                  <td className="py-3 px-4">{produto.proQtd}</td>
-                  <td className="py-3 px-4">{produto.proEstoqueMin}</td>
-                  <td className="py-3 px-4">
-                    {produto.isAbaixoMin ? (
-                      <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Baixo</span>
-                    ) : (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Normal</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="icon" onClick={() => handleEdit(produto)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" onClick={() => handleDelete(produto.proId)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{produtoAtual ? "Editar Produto" : "Novo Produto"}</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="categoria">Unidade</Label>
+                  <Select value={formData.proUnId.toString()} onValueChange={handleUnidadeChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {
+                      unidadesHook.unidades.map((unidade, index) => {
+                        return <SelectItem key={index} value={unidade.unId.toString()}>{unidade.unNome} - {unidade.unSigla}</SelectItem>
+                      })
+                    }
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="categoria">Categoria</Label>
+                  <Select value={formData.proCategoriaId?.toString() ?? ""} onValueChange={handleCategoriaChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {
+                      categoriaHook.categoria.map((categoria, index) => {
+                        return <SelectItem key={index} value={categoria.catProId.toString()}>{categoria.catProNome}</SelectItem>
+                      })
+                    }
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="nome">Nome do Produto</Label>
+                <Input id="nome" name="proNome" value={formData.proNome} onChange={handleInputChange} required />
+              </div>            
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nome">Código SIPAC</Label>
+                  <Input id="nome" name="proSipac" value={formData.proSipac} onChange={handleInputChange} required />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="minimo">Estoque Mínimo</Label>
+                    <Input
+                      id="minimo"
+                      name="proEstoqueMin"
+                      type="number"
+                      min="0"
+                      value={formData.proEstoqueMin || ""} 
+                      onChange={handleInputChange}
+                    />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="observacao">Descrição do produto</Label>
+                <Textarea
+                  id="observacao"
+                  value={formData.proDescricao}
+                  name="proDescricao"
+                  onChange={handleInputChange}
+                  placeholder="Informações adicionais sobre o produto"
+                  rows={3}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" className="bg-[#1e3a8a]">
+                  {produtoAtual ? "Atualizar" : "Cadastrar"}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{produtoAtual ? "Editar Produto" : "Novo Produto"}</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="categoria">Unidade</Label>
-                <Select value={formData.proUnId.toString()} onValueChange={handleUnidadeChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                  {
-                    unidadesHook.unidades.map((unidade, index) => {
-                      return <SelectItem key={index} value={unidade.unId.toString()}>{unidade.unNome} - {unidade.unSigla}</SelectItem>
-                    })
-                  }
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="categoria">Categoria</Label>
-                <Select value={formData.proCategoriaId?.toString() ?? ""} onValueChange={handleCategoriaChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                  {
-                    categoriaHook.categoria.map((categoria, index) => {
-                      return <SelectItem key={index} value={categoria.catProId.toString()}>{categoria.catProNome}</SelectItem>
-                    })
-                  }
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="nome">Nome do Produto</Label>
-              <Input id="nome" name="proNome" value={formData.proNome} onChange={handleInputChange} required />
-            </div>            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="nome">Código SIPAC</Label>
-                <Input id="nome" name="proSipac" value={formData.proSipac} onChange={handleInputChange} required />
-              </div>
-              <div className="space-y-2">
-                  <Label htmlFor="minimo">Estoque Mínimo</Label>
-                  <Input
-                    id="minimo"
-                    name="proEstoqueMin"
-                    type="number"
-                    min="0"
-                    value={formData.proEstoqueMin || ""} 
-                    onChange={handleInputChange}
-                  />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="observacao">Descrição do produto</Label>
-              <Textarea
-                id="observacao"
-                value={formData.proDescricao}
-                name="proDescricao"
-                onChange={handleInputChange}
-                placeholder="Informações adicionais sobre o produto"
-                rows={3}
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit" className="bg-[#1e3a8a]">
-                {produtoAtual ? "Atualizar" : "Cadastrar"}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </ProtectedRoute>
   )
 }
 
