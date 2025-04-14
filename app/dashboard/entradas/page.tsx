@@ -256,4 +256,3 @@ export default function EntradasPage() {
     </div>
   )
 }
-

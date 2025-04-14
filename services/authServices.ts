@@ -39,7 +39,6 @@ export const AuthService = {
   },
 
   async validarToken(token: string): Promise<UsuarioType>{
-    console.log("Opa")
     try {
       const response = await apiClient.post("/auth/validarToken", 
         {},

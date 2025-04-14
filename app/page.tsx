@@ -8,18 +8,19 @@ import { User, Lock, LogIn } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { AuthService } from "@/services/authServices"
 import { useError } from "@/contexts/ErrorContext"
+import Loading from "@/components/Loading"
 export default function LoginPage() {
-  const {login} = useAuth()
-  const {loading, isAutenticado} = useAuth()
+  const erro = useError()
+  const {loading, isAutenticado, login} = useAuth()
   const [matricula, setMatricula] = useState("")
   const [senha, setSenha] = useState("")
   const router = useRouter()
 
   useEffect(() => {
-    if(isAutenticado){
-        router.push("/dashboard")
+    if (!loading && isAutenticado) {
+      router.push("/dashboard")
     }
-  }, [])
+  }, [loading, isAutenticado, router])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,6 +32,7 @@ export default function LoginPage() {
       })
   
       localStorage.setItem("Authorization", token)
+      
       login(token) //Essa parte é de extrema importância pois é onde inicia o contexto da aplicação
       router.push("/dashboard")
     } catch (error) {
@@ -40,8 +42,10 @@ export default function LoginPage() {
     }
   }
 
-  
-  const erro = useError()
+
+  if(loading && !isAutenticado){
+      return <Loading/>
+  }
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <header className="p-4 border-b">

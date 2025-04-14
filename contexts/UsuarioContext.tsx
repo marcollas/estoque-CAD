@@ -43,10 +43,20 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     autenticacaoInicial()
   }, [])
 
+  // É preciso refatorar essa parte depois pois ele loga, desloga e loga novamente.
   const login = async (token: string) => {
-    setLoading(false);
-    setToken(token)
-    setIsAutenticado(true)
+    setLoading(true)
+    setIsAutenticado(false)
+    try {
+      const usuario = await AuthService.validarToken(token)
+      setUsuario(usuario)
+      setIsAutenticado(true)
+      setToken(token)
+    } catch (error) {
+      logout()
+    } finally {
+      setLoading(false)
+    }
   };
 
   const buscarUsuarioToken = async (token: string) => {
@@ -67,7 +77,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     setIsAutenticado(false)
     setUsuario(null);
     setToken(null);
-    setLoading(true)
+    setLoading(false)
     localStorage.removeItem('Authorization');
     router.push("/")
   };

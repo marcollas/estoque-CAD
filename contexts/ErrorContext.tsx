@@ -39,7 +39,7 @@ export const ErrorProvider = ({children} : ErrorProviderProps) =>{
         const errorObj: ErrorType = typeof error === 'string' ? {mensagem: error, tipo: 'error'} : error //Aqui é feito uma inserção condicional, onde se o tipo passado for string, simplesmente adiciona a mesmo a um objeto de erros
         
         //É preciso criar um id para poder acessar os erros mais facilmente. 
-        const errorComId = {...errorObj, id: errorObj.id || Date.now().toString()}
+        const errorComId = {...errorObj, id: errorObj.id || crypto.randomUUID()}
         
         //Adiciono o erro com id no vetor de erros
         setErrors(prev => [...prev, errorComId])
