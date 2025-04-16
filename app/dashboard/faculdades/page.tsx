@@ -41,7 +41,7 @@ export default function faculdadePage() {
     if(isAutenticado){
       fetchData()
     }
-  }, [])
+  }, [isAutenticado])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

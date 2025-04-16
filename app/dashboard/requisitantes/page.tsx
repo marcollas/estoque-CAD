@@ -49,7 +49,7 @@ export default function RequisitantesPage() {
       fetchData()
     }
     
-  }, [])
+  }, [isAutenticado])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
