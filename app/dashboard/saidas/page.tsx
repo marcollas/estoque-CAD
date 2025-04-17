@@ -13,32 +13,11 @@ import { ptBR } from "date-fns/locale"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
-import { MovimentcaoType } from "@/types/movimentacaoType"
+import { FormMovimentacaoType, MovimentacaoType, ProdutosMovType } from "@/types/movimentacaoType"
 import { useMovimentacao } from "@/hooks/useMovimentacao"
 import { useProdutos } from "@/hooks/useProduto"
 import { useRequisitante } from "@/hooks/useRequisitante"
-
-// Dados de exemplo
-const requisitantesIniciais = [
-  { id: 1, nome: "João Silva", departamento: "Administração", matricula: "ADM001" },
-  { id: 2, nome: "Maria Oliveira", departamento: "Recursos Humanos", matricula: "RH002" },
-  { id: 3, nome: "Carlos Santos", departamento: "Financeiro", matricula: "FIN003" },
-  { id: 4, nome: "Ana Pereira", departamento: "Secretaria", matricula: "SEC004" },
-  { id: 5, nome: "Paulo Mendes", departamento: "Coordenação de Cursos", matricula: "COORD005" },
-  { id: 6, nome: "Fernanda Lima", departamento: "Biblioteca", matricula: "BIB006" },
-  { id: 7, nome: "Ricardo Gomes", departamento: "Laboratórios", matricula: "LAB007" },
-]
-
-const produtosIniciais = [
-  { id: 1, codigo: "MAT001", nome: "Papel A4", unidade: "Resma", estoque: 1500 },
-  { id: 2, codigo: "MAT002", nome: "Caneta Esferográfica Azul", unidade: "Unidade", estoque: 350 },
-  { id: 3, codigo: "MAT003", nome: "Grampeador", unidade: "Unidade", estoque: 78 },
-  { id: 4, codigo: "MAT004", nome: "Pasta Suspensa", unidade: "Unidade", estoque: 200 },
-  { id: 5, codigo: "MAT005", nome: "Toner Impressora HP", unidade: "Unidade", estoque: 25 },
-  { id: 6, codigo: "MAT006", nome: "Clips", unidade: "Caixa", estoque: 120 },
-  { id: 7, codigo: "MAT007", nome: "Envelope A4", unidade: "Unidade", estoque: 300 },
-  { id: 8, codigo: "MAT008", nome: "Caderno Universitário", unidade: "Unidade", estoque: 45 },
-]
+import { RequisitanteType } from "@/types/requisitanteType"
 
 export default function MovimentacoesPage() {
   const movimentacaoHook = useMovimentacao()
@@ -50,24 +29,30 @@ export default function MovimentacoesPage() {
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false)
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [calendarOpen, setCalendarOpen] = useState(false)
-  const [requisitantes] = useState(requisitantesIniciais)
-  const [produtos] = useState(produtosIniciais)
-  const [requisitanteSelecionado, setRequisitanteSelecionado] = useState<any>(null)
+  const [requisitanteSelecionado, setRequisitanteSelecionado] = useState<RequisitanteType | null>(null)
   const [buscaRequisitante, setBuscaRequisitante] = useState("")
   const [buscaProduto, setBuscaProduto] = useState("")
   const [produtoSelecionado, setProdutoSelecionado] = useState<any>(null)
   const [quantidade, setQuantidade] = useState(1)
-  const [itensSelecionados, setItensSelecionados] = useState<any[]>([])
+  const [itensSelecionados, setItensSelecionados] = useState<ProdutosMovType[]>([])
   const [formData, setFormData] = useState({
     numeroNF: "",
     numeroRequisicao: "",
   })
 
+  const dadosFormulario: FormMovimentacaoType = {
+    movOrigem: 'NOR', //Implementações futuras
+    movTipo: 'S',
+    movNf: formData.numeroNF,
+    movNumRequisicao: formData.numeroRequisicao,
+    movRequisitante: requisitanteSelecionado,
+    produtosMov: itensSelecionados
+  }
     useEffect(() => {
       const fetchData = async () => {
         try {
           await Promise.all([
-            movimentacaoHook.listarMovimentacao(),
+            movimentacaoHook.listarMovimentacao("S", "F"),
             produtosHook.listarProdutos(),
             requisitanteHook.listarRequisitante()
           ])
@@ -83,7 +68,7 @@ export default function MovimentacoesPage() {
     (movimentacao) =>
       movimentacao.movNumRequisicao?.toLowerCase().includes(busca.toLowerCase()) ||
       movimentacao.movNf?.toLowerCase().includes(busca.toLowerCase()) ||
-      movimentacao.movRequisitante.toLowerCase().includes(busca.toLowerCase()) ||
+      movimentacao.movRequisitante?.toLowerCase().includes(busca.toLowerCase()) ||
       movimentacao.movUsuario.toLowerCase().includes(busca.toLowerCase()),
   )
 
@@ -119,13 +104,13 @@ export default function MovimentacoesPage() {
     if (!produtoSelecionado || quantidade <= 0) return
 
     // Verificar se o produto já está na lista
-    const produtoExistente = itensSelecionados.find((item) => item.produto.id === produtoSelecionado.id)
+    const produtoExistente = itensSelecionados.find((item) => item.produto.proId === produtoSelecionado.id)
 
     if (produtoExistente) {
       // Atualizar a quantidade se o produto já estiver na lista
       setItensSelecionados(
         itensSelecionados.map((item) =>
-          item.produto.id === produtoSelecionado.id ? { ...item, quantidade: item.quantidade + quantidade } : item,
+          item.produto.proId === produtoSelecionado.id ? { ...item, quantidade: item.qtdProduto + quantidade } : item,
         ),
       )
     } else {
@@ -134,8 +119,7 @@ export default function MovimentacoesPage() {
         ...itensSelecionados,
         {
           produto: produtoSelecionado,
-          quantidade,
-          unidade: produtoSelecionado.unidade,
+          qtdProduto: quantidade
         },
       ])
     }
@@ -153,36 +137,26 @@ export default function MovimentacoesPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-  //   if (!requisitanteSelecionado || itensSelecionados.length === 0 || !date) return
+    if (!requisitanteSelecionado || itensSelecionados.length === 0) return
 
-  //   // Criar nova movimentação
-  //   const novaMovimentacao = {
-  //     id: movimentacoes.length + 1,
-  //     data: date,
-  //     numeroNF: formData.numeroNF,
-  //     numeroRequisicao: formData.numeroRequisicao,
-  //     requisitante: requisitanteSelecionado.nome,
-  //     departamento: requisitanteSelecionado.departamento,
-  //     itens: itensSelecionados.map((item) => ({
-  //       produto: item.produto.nome,
-  //       quantidade: item.quantidade,
-  //       unidade: item.unidade,
-  //     })),
-  //     total: itensSelecionados.reduce((acc, item) => acc + item.quantidade, 0),
-  //   }
+    // Criar nova movimentação
+    try {
+      movimentacaoHook.cadastrarMovimentacao(dadosFormulario)
+    } catch (error) {
+      console.error("Erro ao salvar movimentacao:", error);
+      alert("Ocorreu um erro ao processar sua solicitação.");
+    }
 
-  //   setMovimentacoes([...movimentacoes, novaMovimentacao])
-
-  //   // Limpar formulário
-  //   setRequisitanteSelecionado(null)
-  //   setItensSelecionados([])
-  //   setFormData({
-  //     numeroNF: "",
-  //     numeroRequisicao: "",
-  //   })
-  //   setDialogOpen(false)
-  // }
+    // Limpar formulário
+    setRequisitanteSelecionado(null)
+    setItensSelecionados([])
+    setFormData({
+      numeroNF: "",
+      numeroRequisicao: "",
+    })
+    setDialogOpen(false)
   }
+
   const handleNovaMovimentacao = () => {
     setRequisitanteSelecionado(null)
     setItensSelecionados([])
@@ -243,7 +217,7 @@ export default function MovimentacoesPage() {
                   <td className="py-3 px-4">{movimentacao.movRequisitante}</td>
                   <td className="py-3 px-4">
                     <div className="flex flex-wrap gap-1">
-                      {movimentacao.produtosMov.map((item, index) => (
+                      {movimentacao.proMovProduto.map((item, index) => (
                         <Badge key={index} variant="outline" className="text-xs">
                           {item.produto.proNome} - {item.qtdProduto}
                         </Badge>
@@ -264,53 +238,24 @@ export default function MovimentacoesPage() {
             <DialogTitle>Nova Movimentação de Estoque</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="data">Data</Label>
-                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="date"
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                      onClick={() => setCalendarOpen(true)}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "dd/MM/yyyy", { locale: ptBR }) : <span>Selecione uma data</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={(date) => {
-                        setDate(date)
-                        setCalendarOpen(false)
-                      }}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="requisitante">Requisitante</Label>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                    onClick={() => setRequisitanteDialogOpen(true)}
-                  >
-                    <User className="mr-2 h-4 w-4" />
-                    {requisitanteSelecionado ? (
-                      <span>
-                        {requisitanteSelecionado.nome} ({requisitanteSelecionado.departamento})
-                      </span>
-                    ) : (
-                      <span>Selecionar requisitante</span>
-                    )}
-                  </Button>
-                </div>
+            <div className="space-y-2">
+              <Label htmlFor="requisitante">Requisitante</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                  onClick={() => setRequisitanteDialogOpen(true)}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  {requisitanteSelecionado ? (
+                    <span>
+                      {requisitanteSelecionado.reqNome} - {requisitanteSelecionado.reqFacSigla}
+                    </span>
+                  ) : (
+                    <span>Selecionar requisitante</span>
+                  )}
+                </Button>
               </div>
             </div>
 

@@ -53,9 +53,9 @@ export default function Dashboard() {
               </li>
 
               <li>
-                <Link href="/dashboard/movimentacoes" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+                <Link href="/dashboard/saidas" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
                   <ShoppingBasket className="h-5 w-5" />
-                  {sidebarOpen && <span>Movimentações</span>}
+                  {sidebarOpen && <span>Saida</span>}
                 </Link>
               </li>
               <li>

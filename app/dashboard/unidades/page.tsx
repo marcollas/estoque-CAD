@@ -42,7 +42,7 @@ export default function unidadesPage() {
       fetchData()
     }
     
-  }, [])
+  }, [isAutenticado])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

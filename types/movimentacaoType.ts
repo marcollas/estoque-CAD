@@ -1,6 +1,7 @@
 import { ProdutoType } from "./produtoType"
+import { RequisitanteType } from "./requisitanteType"
 
-export type MovimentcaoType = {
+export type MovimentacaoType = {
     movId: number,
     movData: string,
     movDataCancelamento?: Date | null,
@@ -13,10 +14,20 @@ export type MovimentcaoType = {
     movTipo: string,
     movUsuario: string
     movRequisitante: string
-    produtosMov: ProdutosMovType[]
+    proMovProduto: ProdutosMovType[]
 }
 
-type ProdutosMovType = {
-    produto: ProdutoType,
+export type ProdutosMovType = {
+    produto: ProdutoType
     qtdProduto: number
+}
+
+export type FormMovimentacaoType = {
+    movId?: number
+    movOrigem: string
+    movTipo: string
+    movNf?: string
+    movNumRequisicao?: string
+    movRequisitante?: RequisitanteType | null
+    produtosMov?: ProdutosMovType[] | null
 }
