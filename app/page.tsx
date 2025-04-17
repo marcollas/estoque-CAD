@@ -4,16 +4,18 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/UsuarioContext"
-import { User, Lock, LogIn } from "lucide-react"
+import { User, Lock, Mail } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { AuthService } from "@/services/authServices"
 import { useError } from "@/contexts/ErrorContext"
 import Loading from "@/components/Loading"
+import '../styles/login.css'
 export default function LoginPage() {
   const erro = useError()
   const {loading, isAutenticado, login} = useAuth()
   const [matricula, setMatricula] = useState("")
   const [senha, setSenha] = useState("")
+  const [isActive, setIsActive] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -47,60 +49,91 @@ export default function LoginPage() {
       return <Loading/>
   }
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      <header className="p-4 border-b">
-        <h1 className="text-xl font-medium">Login</h1>
-      </header>
+    <div className="login-page min-h-screen flex items-center justify-center">
+      <div className="container">
+          <div className={`form-box login ${isActive ? 'active' : ''}`}>
+              <form onSubmit={handleLogin}>
+                  <h1>Login</h1>
+                  <div className="input-box relative">
+                    <input
+                      type="text"
+                      className="w-full pl-10 py-2 bg-gray-800 text-white rounded-md"
+                      placeholder="Email institucional"
+                      value={matricula}
+                      onChange={(e) => setMatricula(e.target.value)}
+                      required
+                    />
+                    <Mail className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  </div>
+                  <div className="input-box relative">
+                    <input
+                      type="password"
+                      className="w-full pl-10 py-2 bg-gray-800 text-white rounded-md"
+                      placeholder="Senha"
+                      value={senha}
+                      onChange={(e) => setSenha(e.target.value)}
+                      required
+                    />
+                    <Lock className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  </div>
+                  {/* <div className="forgot-link">
+                    <button onClick={() => setIsActive(true)}>Esqueceu sua senha?</button>
+                  </div> */}
+                  <button type="submit" className="btn">Login</button>
+                  {/* <p>or login with social platforms</p>
+                  <div className="social-icons">
+                      <a href="#"><i className='bx bxl-google' ></i></a>
+                      <a href="#"><i className='bx bxl-facebook' ></i></a>
+                      <a href="#"><i className='bx bxl-github' ></i></a>
+                      <a href="#"><i className='bx bxl-linkedin' ></i></a>
+                  </div> */}
+              </form>
+          </div>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-4">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold">Gerenciamento de estoque IGE</h2>
-        </div>
+          <div className="form-box register">
+          <form action="#">
+                  <h1>Registration</h1>
+                  <div className="input-box">
+                      {/* <input type="text" placeholder="Username" required> */}
+                      <i className='bx bxs-user'></i>
+                  </div>
+                  <div className="input-box">
+                      {/* <input type="email" placeholder="Email" required> */}
+                      <i className='bx bxs-envelope' ></i>
+                  </div>
+                  <div className="input-box">
+                      {/* <input type="password" placeholder="Password" required> */}
+                      <i className='bx bxs-lock-alt' ></i>
+                  </div>
+                  <button type="submit" className="btn">Register</button>
+                  <p>or register with social platforms</p>
+                  <div className="social-icons">
+                      <a href="#"><i className='bx bxl-google' ></i></a>
+                      <a href="#"><i className='bx bxl-facebook' ></i></a>
+                      <a href="#"><i className='bx bxl-github' ></i></a>
+                      <a href="#"><i className='bx bxl-linkedin' ></i></a>
+                  </div>
+              </form>
+          </div>
 
-        <div className="w-full max-w-md bg-[#8cbfbd] rounded-lg p-6 shadow-md">
-          <p className="text-center mb-6">Faça o Login para acessar o sistema</p>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <User className="h-5 w-5 text-gray-700" />
+          <div className="toggle-box">
+              <div className="toggle-panel toggle-left">
+                <img 
+                  src="/assets/ige.png" 
+                  alt="Logo IGE" 
+                  className="w-32 h-32 mb-8 object-contain"
+                />
+                <h1>Olá, Bem vindo!</h1>
+                <p className="align-text-center">Sistema de gerenciamento br de estoque do IGE</p> 
               </div>
-              <input
-                type="text"
-                className="w-full pl-10 py-2 bg-gray-800 text-white rounded-md"
-                placeholder="Matrícula"
-                value={matricula}
-                onChange={(e) => setMatricula(e.target.value)}
-                required
-              />
-            </div>
 
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-700" />
+              <div className="toggle-panel toggle-right">
+                  <h1>Welcome Back!</h1>
+                  <p>Already have an account?</p>
+                  <button className="btn login-btn">Login</button>
               </div>
-              <input
-                type="password"
-                className="w-full pl-10 py-2 bg-gray-800 text-white rounded-md"
-                placeholder="Senha"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                className="flex items-center gap-2 bg-[#1e3a8a] text-white px-6 py-2 rounded-md hover:bg-blue-800 transition-colors"
-              >
-                <LogIn className="h-5 w-5" />
-                LOGIN
-              </button>
-            </div>
-          </form>
-        </div>
-      </main>
+          </div>
+      </div>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Package, FileText, ShoppingCart, Users, BarChart2, Settings, LogOut, BookOpen, Clipboard } from "lucide-react"
+import { Package, FileText, ShoppingCart, Users, BarChart2, Settings, LogOut, BookOpen, Clipboard, UserRoundPlus, ShoppingBasket } from "lucide-react"
 import { useError } from "@/contexts/ErrorContext"
 import Link from "next/link"
 import ErrorNotification from "@/components/ErrorNotification"
@@ -47,14 +47,14 @@ export default function Dashboard() {
             
               <li>
                 <Link href="/dashboard/requisitantes" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
-                  <Package className="h-5 w-5" />
+                  <UserRoundPlus className="h-5 w-5" />
                   {sidebarOpen && <span>Requisitantes</span>}
                 </Link>
               </li>
 
               <li>
                 <Link href="/dashboard/movimentacoes" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
-                  <Package className="h-5 w-5" />
+                  <ShoppingBasket className="h-5 w-5" />
                   {sidebarOpen && <span>Movimentações</span>}
                 </Link>
               </li>
