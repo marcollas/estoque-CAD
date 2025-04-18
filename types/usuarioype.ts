@@ -6,3 +6,8 @@ export type UsuarioType = {
     isAtivo?: boolean,
     usuPerfil: string | number
 }
+
+export type AlterarSenhaType = {
+    novaSenha: string
+    senhaAntiga: string
+}

@@ -22,8 +22,8 @@ export const MovimentacaoServices = {
     async listarMovimentacoes(tipo: string, status: string): Promise<MovimentacaoType[]> {
         const response = await apiClient.get('/movimentacao/', {
             params: {
-                matricula: tipo,
-                senha: status
+                tipo: tipo,
+                status: status
               }
         })
         console.log(response.data)
@@ -35,4 +35,9 @@ export const MovimentacaoServices = {
         const response = await apiClient.post('/movimentacao/', formatarDadosApi(dados))
         return response.data
     },
+
+    async cancelar(idMovimentacao: number): Promise<void>{
+        const response = await apiClient.put(`/movimentacao/cancelarMovimentacao/${idMovimentacao}`)
+        return response.data
+    }
 }

@@ -1,87 +1,163 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Package, FileText, ShoppingCart, Users, BarChart2, Settings, LogOut, BookOpen, Clipboard, UserRoundPlus, ShoppingBasket } from "lucide-react"
-import { useError } from "@/contexts/ErrorContext"
+import { Package, FileText, ShoppingCart, Users, BarChart2, Settings, LogOut, BookOpen, Clipboard, UserRoundPlus, ShoppingBasket, Box, PackagePlus, Notebook, User, List } from "lucide-react"
+import { useError } from "@/contexts/NotificationContext"
 import Link from "next/link"
 import ErrorNotification from "@/components/ErrorNotification"
 import { useAuth } from "@/contexts/UsuarioContext"
 import ProtectedRoute from "@/components/ProtectedRoutes"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog"
+import { DialogTitle } from "@radix-ui/react-dialog"
+import { AlterarSenhaType } from "@/types/usuarioype"
+import { useUsuario } from "@/hooks/useUsuario"
 import Loading from "@/components/Loading"
 
 export default function Dashboard() {
   const {logout, usuario} = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [openDialog, setOpenDialog] = useState<"senha" | null>(null)
+  const [senhaAntiga, setSenhaAntiga] = useState("")
+  const [novaSenha, setNovaSenha] = useState("")
+  const [confirmaSenha, setConfirmaSenha] = useState("")
+  const [loadSenha, setLoadSenha] = useState(false)
+  const usuarioHook = useUsuario()
 
+  const alterarSenhaUsuario = (id: number | undefined) => {
+    if(id == undefined){
+      return
+    }
+    if(confirmaSenha != novaSenha){
+      alert("Senha de confirmação difere da senha digitada")
+      return
+    }
+    const dados: AlterarSenhaType = {
+      novaSenha: novaSenha,
+      senhaAntiga: senhaAntiga
+    }
+    setLoadSenha(true)
+    try {
+      usuarioHook.alterarSenhaUsuario(id, dados)
+      setConfirmaSenha("")
+      setNovaSenha("")
+      setSenhaAntiga("")
+      setOpenDialog(null)
+    } catch (error) {
+      console.log("Erro")
+    }finally{
+      setLoadSenha(false)
+    }
+    
+  }
   return (
+    // O sistema está com um comportamento que precisa ser corrigido. Ao fazer login por um curto espaço de tempo, o sistema vem para essa tela e retorna para a tela de login e novamente retorna para essa tela.
     <ProtectedRoute>
       <div className="flex h-screen bg-gray-100">
         {/* Avaliar se esse componente é realmente necessário aqui */}
         <ErrorNotification />
-        <aside className={`bg-[#1e3a8a] text-white ${sidebarOpen ? "w-64" : "w-20"} transition-all duration-300`}>
+        <aside
+          className={`bg-[#1e3a8a] text-white ${
+            sidebarOpen ? "w-64" : "w-20"
+          } transition-all duration-300 h-screen relative flex flex-col`}
+        >
           <div className="p-4 flex justify-between items-center">
-            <h2 className={`font-bold ${sidebarOpen ? "block" : "hidden"}`}>Almoxarifado</h2>
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-white">
+            <h2 className={`font-bold ${sidebarOpen ? "block" : "hidden"}`}>
+              Almoxarifado
+            </h2>
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-white"
+            >
               {sidebarOpen ? "←" : "→"}
             </button>
           </div>
 
-          <nav className="mt-8">
+          <nav className="mt-8 flex-1 overflow-y-auto">
             <ul className="space-y-2 px-2">
               <li>
-                <Link href="/dashboard" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
+                >
                   <BarChart2 className="h-5 w-5" />
                   {sidebarOpen && <span>Dashboard</span>}
                 </Link>
               </li>
-              {
-                usuario?.usuPerfil == "ADMIN" && (
-                  <li>
-                    <Link href="/dashboard/usuarios" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
-                      <Users className="h-5 w-5" />
-                      {sidebarOpen && <span>Usuários</span>}
-                    </Link>
-                  </li>
-                )
-              }
-            
+
+              {usuario?.usuPerfil === "ADMIN" && (
+                <li>
+                  <Link
+                    href="/dashboard/usuarios"
+                    className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
+                  >
+                    <Users className="h-5 w-5" />
+                    {sidebarOpen && <span>Usuários</span>}
+                  </Link>
+                </li>
+              )}
+
               <li>
-                <Link href="/dashboard/requisitantes" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+                <Link
+                  href="/dashboard/requisitantes"
+                  className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
+                >
                   <UserRoundPlus className="h-5 w-5" />
                   {sidebarOpen && <span>Requisitantes</span>}
                 </Link>
               </li>
 
               <li>
-                <Link href="/dashboard/saidas" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
-                  <ShoppingBasket className="h-5 w-5" />
+                <Link
+                  href="/dashboard/saidas"
+                  className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
+                >
+                  <ShoppingCart className="h-5 w-5" />
                   {sidebarOpen && <span>Saida</span>}
                 </Link>
               </li>
+
               <li>
-                <Link href="/dashboard/requisicoes" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
-                  <FileText className="h-5 w-5" />
-                  {sidebarOpen && <span>Requisições</span>}
+                <Link
+                  href="/dashboard/entradas"
+                  className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
+                >
+                  <PackagePlus className="h-5 w-5" />
+                  {sidebarOpen && <span>Entradas</span>}
                 </Link>
               </li>
+
               <li>
-                <Link href="/dashboard/produtos" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
-                  <FileText className="h-5 w-5" />
+                <Link
+                  href="/dashboard/produtos"
+                  className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
+                >
+                  <Box className="h-5 w-5" />
                   {sidebarOpen && <span>Produtos</span>}
                 </Link>
               </li>
+
               <li>
-                <Link href="/dashboard/categorias" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
-                  <FileText className="h-5 w-5" />
-                  {sidebarOpen && <span>Categorias</span>}
+                <Link
+                  href="/dashboard/categorias"
+                  className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
+                >
+                  <Notebook className="h-5 w-5" />
+                  {sidebarOpen && <span>Categorias de produtos</span>}
                 </Link>
               </li>
+
               <li>
-                <Link href="/dashboard/unidades" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+                <Link
+                  href="/dashboard/unidades"
+                  className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
+                >
                   <FileText className="h-5 w-5" />
                   {sidebarOpen && <span>Unidades</span>}
                 </Link>
               </li>
+
               <li>
                 <Link
                   href="/dashboard/faculdades"
@@ -91,20 +167,30 @@ export default function Dashboard() {
                   {sidebarOpen && <span>Faculdades</span>}
                 </Link>
               </li>
+
               <li>
-                <Link href="/dashboard/entradas" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
-                  <ShoppingCart className="h-5 w-5" />
-                  {sidebarOpen && <span>Entradas</span>}
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard/relatorios" className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800">
+                <Link
+                  href="#"
+                  onClick={() => alert("Implementações futuras !!")}
+                  className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
+                >
                   <Clipboard className="h-5 w-5" />
                   {sidebarOpen && <span>Relatórios</span>}
                 </Link>
               </li>
-        
+
               <li>
+                <Link
+                  href="#"
+                  onClick={() => alert("Implementações futuras !!")}
+                  className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
+                >
+                  <List className="h-5 w-5" />
+                  {sidebarOpen && <span>Requisições</span>}
+                </Link>
+              </li>
+
+              {/* <li>
                 <Link
                   href="/dashboard/configuracoes"
                   className="flex items-center gap-3 p-3 rounded-md hover:bg-blue-800"
@@ -112,19 +198,18 @@ export default function Dashboard() {
                   <Settings className="h-5 w-5" />
                   {sidebarOpen && <span>Configurações</span>}
                 </Link>
-              </li>
-
-              <div className="absolute bottom-0 w-full p-4">
-                <button onClick={() => logout()} className="flex items-center gap-3 p-3 w-full rounded-md hover:bg-blue-800">
+              </li> */}
+              <li>
+                <button
+                  onClick={() => logout()}
+                  className="flex items-center gap-3 p-3 w-full rounded-md hover:bg-blue-800"
+                >
                   <LogOut className="h-5 w-5" />
                   {sidebarOpen && <span>Sair</span>}
                 </button>
-              </div>
+            </li>
             </ul>
-            
           </nav>
-
-          
         </aside>
 
         {/* Main content */}
@@ -134,9 +219,50 @@ export default function Dashboard() {
               <h1 className="text-xl font-semibold">Dashboard</h1>
               <div className="flex items-center gap-4">
                 <span>Bem-vindo, {usuario?.usuNome}</span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" onClick={() =>console.log("Oi")}>
+                      <User className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setOpenDialog("senha")}>
+                      Alterar Senha
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={logout}>
+                      <LogOut className="h-5 w-5" />
+                      Sair
+                      
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
               </div>
             </div>
           </header>
+          <Dialog open={openDialog === "senha"} onOpenChange={(open) => !open && setOpenDialog(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Alterar Senha</DialogTitle>
+              </DialogHeader>
+              {/* Formulário de alteração de senha */}
+              {
+                loadSenha ? 
+                  <Loading />
+                :
+                  <form className="space-y-4" onSubmit={(e) => {
+                    e.preventDefault()
+                    alterarSenhaUsuario(usuario?.usuId)
+                  }}>
+                    <input type="password" placeholder="Senha atual" name="senhaAntiga" className="w-full border rounded p-2" onChange={(e) => setSenhaAntiga(e.target.value)} />
+                    <input type="password" placeholder="Nova senha" name="novaSenha" className="w-full border rounded p-2" onChange={(e) => setNovaSenha(e.target.value)}/>
+                    <input type="password" placeholder="Confirmar nova senha" className="w-full border rounded p-2" onChange={(e) => setConfirmaSenha(e.target.value)}/>
+                    <Button type="submit">Alterar Senha</Button>
+                  </form>
+              }
+             
+            </DialogContent>
+          </Dialog>
 
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

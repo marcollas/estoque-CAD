@@ -2,7 +2,7 @@
 
 import React, {createContext, useContext, useEffect, useState} from "react";
 import { UsuarioType } from "@/types/usuarioype";
-import { useError } from "./ErrorContext";
+import { useError } from "./NotificationContext";
 import axios from "axios";
 import { useRouter } from "next/navigation"
 import { AuthService } from "@/services/authServices";

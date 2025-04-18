@@ -1,6 +1,6 @@
 'use client'
 
-import { useError } from "@/contexts/ErrorContext";
+import { useError } from "@/contexts/NotificationContext";
 import '../styles/erroNotification.css'
 
 /**

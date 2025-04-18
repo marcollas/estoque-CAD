@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Package, Plus, Search, Edit, Trash2 } from "lucide-react"
+import { Package, Plus, Search, Edit, Trash2, Box } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -172,7 +172,7 @@ export default function ProdutosPage() {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Package className="h-6 w-6" />
+            <Box className="h-6 w-6" />
             Gerenciamento de Produtos
           </h1>
           <Button onClick={handleAddNew} className="bg-[#1e3a8a]">

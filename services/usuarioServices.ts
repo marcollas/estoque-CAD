@@ -1,5 +1,5 @@
 import apiClient from "./api/apiCllient";
-import type { UsuarioType } from "@/types/usuarioype";
+import type { AlterarSenhaType, UsuarioType } from "@/types/usuarioype";
 
 
 export const UsuarioServices = {
@@ -27,6 +27,17 @@ export const UsuarioServices = {
         const response = await apiClient.put(`/usuario/${id}`, dados)
         return response.data
     },
+
+    async alterarSenhaUsuario(id: number, dados: AlterarSenhaType): Promise<void>{
+        const response = await apiClient.put(`/usuario/alterarSenha/${id}`, dados)
+        return response.data
+    },
+
+    async resetarSenhaDeUsuario(id: number): Promise<void>{
+        const response = await apiClient.put(`/usuario/resetarSenha/${id}`)
+        return response.data
+    },
+
 
     async inativar(id: number): Promise<void>{
         const response = await apiClient.put(`/usuario/inativar/${id}`)

@@ -1,13 +1,13 @@
 // app/layout.tsx
 import type { Metadata } from 'next'
-import { ErrorProvider } from '@/contexts/ErrorContext'
+import { ErrorProvider } from '@/contexts/NotificationContext'
 import { AuthProvider } from '@/contexts/UsuarioContext'
 import ErrorNotification from '@/components/ErrorNotification'
 import ApiErrorHandler from '@/components/ApiErrorHandler'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
+  title: 'Estoque IGE',
   description: 'Created with v0',
   generator: 'v0.dev',
 }
@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="pt-br">
       <body>
         {/* Provider de erros */}
         <ErrorProvider>

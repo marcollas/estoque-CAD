@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { FaculdadeServices } from "@/services/faculdadeServices";
 import { FaculdadeType } from "@/types/faculdadeType";
-import { useError } from "@/contexts/ErrorContext";
+import { useError } from "@/contexts/NotificationContext";
 
 export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
     const [faculdade, setFaculdade] = useState<FaculdadeType[]>(initialFaculdade)
     const [loading, setLoading] = useState(false);
-    const {addError} = useError()
+    const {addNotification} = useError()
     
     const listarFaculdade = async () => {
         setLoading(true)
@@ -15,7 +15,7 @@ export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
             setFaculdade(data)
 
         }catch(err){
-            addError(err instanceof Error ? err.message : "Erro ao carregar Faculdade")
+            addNotification(err instanceof Error ? err.message : "Erro ao carregar Faculdade")
             throw err
         }finally{
             setLoading(false)
@@ -27,9 +27,10 @@ export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
         try {
             const novaFaculdade = await FaculdadeServices.criar(dados)
             setFaculdade(prev => [...prev, novaFaculdade]); //Insiro no array de Faculdade
+            addNotification({mensagem: "Faculdade cadastrada com sucesso", tipo: "info"})
             return novaFaculdade
         } catch (err) {
-            addError(err instanceof Error ? err.message : "Erro ao criar Faculdade")
+            addNotification(err instanceof Error ? err.message : "Erro ao criar Faculdade")
             throw err
         }finally{
             setLoading(false)
@@ -45,9 +46,10 @@ export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
                     ...faculdadeAtualizada //Sobrescrevo com o dado atualizado
                 } : faculdade
             ))
+            addNotification({mensagem: "Faculdade atualizada com sucesso", tipo: "info"})
             return faculdadeAtualizada
         } catch (err) {
-            addError(err instanceof Error ? err.message : "Erro ao atualizar Faculdade")
+            addNotification(err instanceof Error ? err.message : "Erro ao atualizar Faculdade")
             throw err
         }finally{
             setLoading(false)
@@ -59,8 +61,9 @@ export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
         try {
             await FaculdadeServices.inativar(id)
             setFaculdade(prev => prev.filter(faculdade => faculdade.facId !== id))
+            addNotification({mensagem: "Faculdade inativada com sucesso", tipo: "info"})
         } catch (err) {
-            addError(err instanceof Error ? err.message : "Erro ao atualizar Faculdade")
+            addNotification(err instanceof Error ? err.message : "Erro ao atualizar Faculdade")
             throw err
         }finally{
             setLoading(false)

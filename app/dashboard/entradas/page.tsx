@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useEffect, useState } from "react"
-import { ArrowRight, CalendarIcon, Plus, Search, ShoppingBag, Trash2, User } from "lucide-react"
+import { ArrowRight, CalendarIcon, Plus, Search, ShoppingBag, ShoppingCart, Trash2, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -18,17 +18,19 @@ import { useMovimentacao } from "@/hooks/useMovimentacao"
 import { useProdutos } from "@/hooks/useProduto"
 import { useRequisitante } from "@/hooks/useRequisitante"
 import { RequisitanteType } from "@/types/requisitanteType"
+import ProtectedRoute from "@/components/ProtectedRoutes"
+import { useAuth } from "@/contexts/UsuarioContext"
+import Loading from "./loading"
 
 export default function MovimentacoesPage() {
   const movimentacaoHook = useMovimentacao()
   const produtosHook  = useProdutos()
   const requisitanteHook = useRequisitante()
+  const {isAutenticado, usuario} = useAuth()
   const [busca, setBusca] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
   const [requisitanteDialogOpen, setRequisitanteDialogOpen] = useState(false)
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false)
-  const [date, setDate] = useState<Date | undefined>(new Date())
-  const [calendarOpen, setCalendarOpen] = useState(false)
   const [requisitanteSelecionado, setRequisitanteSelecionado] = useState<RequisitanteType | null>(null)
   const [buscaRequisitante, setBuscaRequisitante] = useState("")
   const [buscaProduto, setBuscaProduto] = useState("")
@@ -40,9 +42,10 @@ export default function MovimentacoesPage() {
     numeroRequisicao: "",
   })
 
+
   const dadosFormulario: FormMovimentacaoType = {
     movOrigem: 'NOR', //Implementações futuras
-    movTipo: 'S',
+    movTipo: 'E',
     movNf: formData.numeroNF,
     movNumRequisicao: formData.numeroRequisicao,
     movRequisitante: requisitanteSelecionado,
@@ -60,16 +63,18 @@ export default function MovimentacoesPage() {
           console.error("Erro ao carregar dados:", error)
         }
       }
-      fetchData()
+      if(isAutenticado){
+        fetchData()
+      }
       
-    }, [])
+    }, [isAutenticado])
 
   const movimentacoesFiltradas = movimentacaoHook.movimentacao.filter(
     (movimentacao) =>
       movimentacao.movNumRequisicao?.toLowerCase().includes(busca.toLowerCase()) ||
       movimentacao.movNf?.toLowerCase().includes(busca.toLowerCase()) ||
       movimentacao.movRequisitante?.toLowerCase().includes(busca.toLowerCase()) ||
-      movimentacao.movUsuario.toLowerCase().includes(busca.toLowerCase()),
+      movimentacao.movUsuario?.toLowerCase().includes(busca.toLowerCase()),
   )
 
   const requisitantesFiltrados = requisitanteHook.requisitante.filter(
@@ -164,16 +169,23 @@ export default function MovimentacoesPage() {
       numeroNF: "",
       numeroRequisicao: "",
     })
-    setDate(new Date())
     setDialogOpen(true)
   }
 
+  const handleCancel = (id: number) => {
+    if (confirm("Tem certeza que deseja cancelar esta entrada? \nEste é um processo incancelável!")) {
+      movimentacaoHook.cancelarMovimentacao(id)
+    }
+  }
+  if (movimentacaoHook.loading) return <Loading />;
+
   return (
+    <ProtectedRoute>
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <ShoppingBag className="h-6 w-6" />
-          Movimentações de Estoque
+          <ShoppingCart className="h-6 w-6" />
+          Entradas de Estoque
         </h1>
         <Button onClick={handleNovaMovimentacao} className="bg-[#1e3a8a]">
           <Plus className="h-4 w-4 mr-2" />
@@ -202,9 +214,10 @@ export default function MovimentacoesPage() {
                 <th className="text-left py-3 px-4">Data</th>
                 <th className="text-left py-3 px-4">Horário</th>
                 <th className="text-left py-3 px-4">Usuario</th>
-                <th className="text-left py-3 px-4">Nº Requisição</th>
+                <th className="text-left py-3 px-4">Nº NF</th>
                 <th className="text-left py-3 px-4">Requisitante</th>
                 <th className="text-left py-3 px-4">Itens</th>
+                
               </tr>
             </thead>
             <tbody>
@@ -213,7 +226,7 @@ export default function MovimentacoesPage() {
                   <td className="py-3 px-4">{format(movimentacao.movData, "dd/MM/yyyy")}</td>
                   <td className="py-3 px-4">{movimentacao.movHorario}</td>
                   <td className="py-3 px-4">{movimentacao.movUsuario}</td>
-                  <td className="py-3 px-4">{movimentacao.movNumRequisicao}</td>
+                  <td className="py-3 px-4">{movimentacao.movNf}</td>
                   <td className="py-3 px-4">{movimentacao.movRequisitante}</td>
                   <td className="py-3 px-4">
                     <div className="flex flex-wrap gap-1">
@@ -224,6 +237,17 @@ export default function MovimentacoesPage() {
                       ))}
                     </div>
                   </td>
+                  {
+                    usuario?.usuPerfil == "ADMIN" && (
+                      <td className="py-3 px-4">
+                        <Button variant="outline" size="icon" onClick={() => handleCancel(movimentacao.movId)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </td>
+                    )
+                  }
+                  
+
                 </tr>
               ))}
             </tbody>
@@ -253,7 +277,7 @@ export default function MovimentacoesPage() {
                       {requisitanteSelecionado.reqNome} - {requisitanteSelecionado.reqFacSigla}
                     </span>
                   ) : (
-                    <span>Selecionar requisitante</span>
+                    <span>Selecionar fornecedor</span>
                   )}
                 </Button>
               </div>
@@ -307,7 +331,7 @@ export default function MovimentacoesPage() {
                         <tr key={index} className="border-t">
                           <td className="py-2 px-4">{item.produto.proSipac}</td>
                           <td className="py-2 px-4">{item.produto.proNome}</td>
-                          <td className="py-2 px-4">{item.produto.proQtd}</td>
+                          <td className="py-2 px-4">{item.qtdProduto}</td>
                           <td className="py-2 px-4">{item.produto.proUn}</td>
                           <td className="py-2 px-4">
                             <Button
@@ -352,7 +376,7 @@ export default function MovimentacoesPage() {
       <Dialog open={requisitanteDialogOpen} onOpenChange={setRequisitanteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Selecionar Requisitante</DialogTitle>
+            <DialogTitle>Selecionar Fornecedor</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="relative">
@@ -472,8 +496,7 @@ export default function MovimentacoesPage() {
                       type="number"
                       min="1"
                       max={produtoSelecionado.estoque}
-                      value={quantidade}
-                      onChange={(e) => setQuantidade(Number.parseInt(e.target.value))}
+                      value={quantidade} onChange={(e) => setQuantidade(e.target.value != "" ? Number.parseInt(e.target.value) : 0)}
                       className="w-20"
                     />
                   </div>
@@ -489,5 +512,6 @@ export default function MovimentacoesPage() {
         </DialogContent>
       </Dialog>
     </div>
+    </ProtectedRoute>
   )
   }

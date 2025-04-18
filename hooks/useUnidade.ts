@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { UnidadeServices } from "@/services/unidadeServices";
 import type { UnidadeType } from "@/types/unidadeType";
-import { useError } from "@/contexts/ErrorContext";
+import { useError } from "@/contexts/NotificationContext";
 
 export const useUnidades = (initialUnidades: UnidadeType[] = []) => {
     const [unidades, setUnidades] = useState<UnidadeType[]>(initialUnidades)
     const [loading, setLoading] = useState(false);
-    const {addError} = useError()
+    const {addNotification} = useError()
     
     const listarUnidades = async () => {
         setLoading(true)
@@ -14,7 +14,7 @@ export const useUnidades = (initialUnidades: UnidadeType[] = []) => {
             const data = await UnidadeServices.listarTodos()
             setUnidades(data)
         }catch(err){
-            addError(err instanceof Error ? err.message : "Erro ao carregar unidades")
+            addNotification(err instanceof Error ? err.message : "Erro ao carregar unidades")
             throw err
         }finally{
             setLoading(false)
@@ -26,9 +26,10 @@ export const useUnidades = (initialUnidades: UnidadeType[] = []) => {
         try {
             const novaUnidade = await UnidadeServices.criar(dados)
             setUnidades(prev => [...prev, novaUnidade]); //Insiro no array de unidades
+            addNotification({mensagem: "Unidade cadastrada com sucesso", tipo: "info"})
             return novaUnidade
         } catch (err) {
-            addError(err instanceof Error ? err.message : "Erro ao criar unidades")
+            addNotification(err instanceof Error ? err.message : "Erro ao criar unidades")
             throw err
         }finally{
             setLoading(false)
@@ -44,9 +45,10 @@ export const useUnidades = (initialUnidades: UnidadeType[] = []) => {
                     ...unidadeAtualizada //Sobrescrevo com o dado atualizado
                 } : unidade
             ))
+            addNotification({mensagem: "Unidade atualizada com sucesso", tipo: "info"})
             return unidadeAtualizada
         } catch (err) {
-            addError(err instanceof Error ? err.message : "Erro ao atualizar unidade")
+            addNotification(err instanceof Error ? err.message : "Erro ao atualizar unidade")
             throw err
         }finally{
             setLoading(false)
@@ -58,8 +60,9 @@ export const useUnidades = (initialUnidades: UnidadeType[] = []) => {
         try {
             await UnidadeServices.inativar(id)
             setUnidades(prev => prev.filter(unidade => unidade.unId !== id))
+            addNotification({mensagem: "Unidade inativada com sucesso", tipo: "info"})
         } catch (err) {
-            addError(err instanceof Error ? err.message : "Erro ao atualizar unidade")
+            addNotification(err instanceof Error ? err.message : "Erro ao atualizar unidade")
             throw err
         }finally{
             setLoading(false)

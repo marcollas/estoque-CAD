@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { UsuarioServices } from "@/services/usuarioServices";
-import { UsuarioType } from "@/types/usuarioype";
-import { useError } from '@/contexts/ErrorContext';
+import { AlterarSenhaType, UsuarioType } from "@/types/usuarioype";
+import { useError } from '@/contexts/NotificationContext';
 
 export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
     const [usuario, setUsuario] = useState<UsuarioType[]>(initialUsuario)
     const [loading, setLoading] = useState(false);
-    const {addError} = useError()
+    const {addNotification} = useError()
     
     const listarUsuario = async () => {
         setLoading(true)
         try{
             const data = await UsuarioServices.listarTodos()
             setUsuario(data)
-
+            
         }catch(err){
-            addError(err instanceof Error ? err.message : "Erro ao carregar usuario")
+            addNotification(err instanceof Error ? err.message : "Erro ao carregar usuario")
             throw err
         }finally{
             setLoading(false)
@@ -27,9 +27,10 @@ export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
         try {
             const novaUsuario = await UsuarioServices.criar(dados)
             setUsuario(prev => [...prev, novaUsuario]); //Insiro no array de Usuario
+            addNotification({mensagem: "Usuário cadastrado com sucesso", tipo: "info"})
             return novaUsuario
         } catch (err) {
-            addError(err instanceof Error ? err.message : "Erro ao criar Usuario")
+            addNotification(err instanceof Error ? err.message : "Erro ao criar Usuario")
             throw err
         }finally{
             setLoading(false)
@@ -45,9 +46,36 @@ export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
                     ...usuarioAtualizada //Sobrescrevo com o dado atualizado
                 } : usuario
             ))
+            addNotification({mensagem: "Usuário atualizado com sucesso", tipo: "info"})
             return usuarioAtualizada
         } catch (err) {
-            addError(err instanceof Error ? err.message : "Erro ao atualizar Usuario")
+            addNotification(err instanceof Error ? err.message : "Erro ao atualizar Usuario")
+            throw err
+        }finally{
+            setLoading(false)
+        }
+    }
+
+    const alterarSenhaUsuario = async (id: number, dados: AlterarSenhaType) => {
+        setLoading(true)
+        try {
+            await UsuarioServices.alterarSenhaUsuario(id, dados)
+            addNotification({mensagem: "Senha de usuário alterada com sucesso", tipo: "info"})
+        } catch (err) {
+            addNotification(err instanceof Error ? err.message : "Erro ao altera senha de Usuario")
+            throw err
+        }finally{
+            setLoading(false)
+        }
+    }
+
+    const resetarSenha = async (id: number) => {
+        setLoading(true)
+        try {
+            await UsuarioServices.resetarSenhaDeUsuario(id)
+            addNotification({mensagem: "Senha de usuário resetada com sucesso", tipo: "info"})
+        } catch (err) {
+            addNotification(err instanceof Error ? err.message : "Erro ao altera senha de Usuario")
             throw err
         }finally{
             setLoading(false)
@@ -59,8 +87,9 @@ export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
         try {
             await UsuarioServices.inativar(id)
             setUsuario(prev => prev.filter(usuario => usuario.usuId !== id))
+            addNotification({mensagem: "Usuário inativado com sucesso", tipo: "info"})
         } catch (err) {
-            addError(err instanceof Error ? err.message : "Erro ao atualizar Usuario")
+            addNotification(err instanceof Error ? err.message : "Erro ao atualizar Usuario")
             throw err
         }finally{
             setLoading(false)
@@ -73,6 +102,8 @@ export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
         listarUsuario,
         criarUsuario,
         atualizarUsuario,
-        inativarUsuario
+        inativarUsuario,
+        alterarSenhaUsuario,
+        resetarSenha
     }
 }

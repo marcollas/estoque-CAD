@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Package, Plus, Search, Edit, Trash2 } from "lucide-react"
+import { Package, Plus, Search, Edit, Trash2, ListRestart, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -15,10 +15,11 @@ import Loading from "@/components/Loading"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/contexts/UsuarioContext"
 import ProtectedRoute from "@/components/ProtectedRoutes"
+import { useRouter } from "next/navigation"
 
 export default function UsuariosPage() {
   //ADICIONAR PROTEÇÃO PARA CASO DE USUÁRIO NÃO ADM
-  const {isAutenticado} = useAuth()
+  const {isAutenticado, usuario, loading} = useAuth()
   const [busca, setBusca] = useState("")
   const [usuarioAtual, setUsuarioAtual] = useState<any>(null)
   const [confirmaSenha, setConfirmarSenha] = useState("")
@@ -30,7 +31,7 @@ export default function UsuariosPage() {
     usuPerfil: "",
     usuId: 0
   })
-
+  const router = useRouter()
   const usuarioHook = useUsuario()
   useEffect(() => {
     const fetchData = async () => {
@@ -43,11 +44,14 @@ export default function UsuariosPage() {
       }
     }
   
-    if(isAutenticado){
+    if(usuario?.usuPerfil != "ADMIN" && !loading){
+      router.push("/dashboard")
+    }
+    if(isAutenticado && usuario?.usuPerfil == "ADMIN"){
       fetchData()
     }
     
-  }, [])
+  }, [isAutenticado])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,6 +126,12 @@ export default function UsuariosPage() {
     }
   }
 
+  const resetarSenha = (id: number) => {
+    if (confirm("Tem certeza que deseja resetar a senha deste usuario para 123?")) {
+      usuarioHook.resetarSenha(id)
+    }
+  }
+
   const handleAddNew = () => {
     setUsuarioAtual(null)
     setFormData({
@@ -141,7 +151,7 @@ export default function UsuariosPage() {
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Package className="h-6 w-6" />
+            <Users className="h-6 w-6" />
             Gerenciamento de Usuarios
           </h1>
           <Button onClick={handleAddNew} className="bg-[#1e3a8a]">
@@ -172,6 +182,7 @@ export default function UsuariosPage() {
                   <th className="text-left py-3 px-4">Login</th>
                   <th className="text-left py-3 px-4">Perfil</th>
                   <th className="text-left py-3 px-4">Ações</th>
+                  <th className="text-left py-3 px-4">Resetar senha</th>
                 </tr>
               </thead>
               <tbody>
@@ -189,6 +200,11 @@ export default function UsuariosPage() {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
+                    </td>
+                    <td className="py-3 px-4">
+                        <Button variant="outline" size="icon" onClick={() => resetarSenha(usuario.usuId)}>
+                          <ListRestart className="h-4 w-4" />
+                        </Button>
                     </td>
                   </tr>
                 ))}

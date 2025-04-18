@@ -3,20 +3,20 @@
 
 import { useEffect } from 'react'
 import { setErrorHandler } from '@/services/api/apiCllient'
-import { useError } from '@/contexts/ErrorContext'
+import { useError } from '@/contexts/NotificationContext'
 
 export default function ApiErrorHandler() {
-  const { addError } = useError()
+  const { addNotification } = useError()
 
   useEffect(() => {
     setErrorHandler((errorMessage: string) => {
-      addError({
+      addNotification({
         mensagem: errorMessage, 
         tipo: 'error',
         id: Date.now().toString()
       })
     })
-  }, [addError])
+  }, [addNotification])
 
   return null
 }

@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/UsuarioContext"
-import { useError } from "@/contexts/ErrorContext"
+import { useError } from "@/contexts/NotificationContext"
 import Loading from "./Loading"
 
 interface ProtectedRoutesProps {
@@ -17,8 +17,8 @@ export default function ProtectedRoute({children}: ProtectedRoutesProps){
 
     useEffect(() => {
         if(!loading && !isAutenticado){
-            erro.addError("Token inválido ou expirado")
-            erro.addError("Faça login novamente")
+            erro.addNotification("Token inválido ou expirado")
+            erro.addNotification("Faça login novamente")
             router.push("/")
         }
     }, [loading, isAutenticado, router])

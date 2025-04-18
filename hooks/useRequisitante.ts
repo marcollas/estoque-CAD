@@ -2,12 +2,12 @@
 import { useState } from 'react';
 import { RequisitanteServices } from '@/services/requisitanteServices';
 import type { RequisitanteType } from '@/types/requisitanteType';
-import { useError } from '@/contexts/ErrorContext';
+import { useError } from '@/contexts/NotificationContext';
 
 export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) => {
   const [requisitante, setRequisitante] = useState<RequisitanteType[]>(initialRequisitante);
   const [loading, setLoading] = useState(false);
-  const {addError} = useError()
+  const {addNotification} = useError()
 
   // Listar todos os Requisitante
   const listarRequisitante = async () => {
@@ -17,7 +17,7 @@ export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) =>
       setRequisitante(data);
       return data;
     } catch (err) {
-      addError(err instanceof Error ? err.message : 'Erro ao carregar Requisitante');
+      addNotification(err instanceof Error ? err.message : 'Erro ao carregar Requisitante');
       throw err;
     } finally {
       setLoading(false);
@@ -30,9 +30,10 @@ export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) =>
     try {
       const novoRequisitante = await RequisitanteServices.criar(dados);
       setRequisitante(prev => [...prev, novoRequisitante]);
+      addNotification({mensagem: "Requisitante cadastrado com sucesso", tipo: "info"})
       return novoRequisitante;
     } catch (err) {
-      addError(err instanceof Error ? err.message : 'Erro ao criar Requisitante');
+      addNotification(err instanceof Error ? err.message : 'Erro ao criar Requisitante');
       throw err;
     } finally {
       setLoading(false);
@@ -52,9 +53,11 @@ export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) =>
           } : requisitante
         )
       );
+      addNotification({mensagem: "Requisitante atualizado com sucesso", tipo: "info"})
+      console.log(requisitanteAtualizado)
       return requisitanteAtualizado;
     } catch (err) {
-      addError(err instanceof Error ? err.message : 'Erro ao atualizar Requisitante');
+      addNotification(err instanceof Error ? err.message : 'Erro ao atualizar Requisitante');
       throw err;
     } finally {
       setLoading(false);
@@ -67,8 +70,9 @@ export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) =>
     try {
       await RequisitanteServices.inativar(id);
       setRequisitante(prev => prev.filter(requisitante => requisitante.reqId !== id));
+      addNotification({mensagem: "Requisitante inativado com sucesso", tipo: "info"})
     } catch (err) {
-      addError(err instanceof Error ? err.message : 'Erro ao inativar Requisitante');
+      addNotification(err instanceof Error ? err.message : 'Erro ao inativar Requisitante');
       throw err;
     } finally {
       setLoading(false);

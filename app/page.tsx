@@ -7,29 +7,36 @@ import { useAuth } from "@/contexts/UsuarioContext"
 import { User, Lock, Mail } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { AuthService } from "@/services/authServices"
-import { useError } from "@/contexts/ErrorContext"
+import { useError } from "@/contexts/NotificationContext"
 import Loading from "@/components/Loading"
 import '../styles/login.css'
 export default function LoginPage() {
   const erro = useError()
   const {loading, isAutenticado, login} = useAuth()
-  const [matricula, setMatricula] = useState("")
+  const [loadLogin, setLoadLogin] = useState(true)
+  const [emailInstitucional, setEmailInstitucional] = useState("")
   const [senha, setSenha] = useState("")
   const [isActive, setIsActive] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && isAutenticado) {
-      router.push("/dashboard")
+    if (!loading) {
+      if (isAutenticado) {
+        router.push("/dashboard")
+      } else {
+        setLoadLogin(false)
+      }
     }
   }, [loading, isAutenticado, router])
+  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoadLogin(true)
   
     try {
       const { token } = await AuthService.login({
-        usuLogin: matricula,
+        usuLogin: emailInstitucional,
         usuSenha: senha,
       })
   
@@ -40,12 +47,16 @@ export default function LoginPage() {
     } catch (error) {
       const erroMsg = error instanceof Error ? error.message : "Erro ao autenticar"
       alert(erroMsg)
-      erro.addError(erroMsg)
+      erro.addNotification(erroMsg)
+      setEmailInstitucional("")
+      setSenha("")
+    }finally{
+      setLoadLogin(false)
     }
   }
 
 
-  if(loading && !isAutenticado){
+  if(loading || loadLogin){
       return <Loading/>
   }
   return (
@@ -59,8 +70,8 @@ export default function LoginPage() {
                       type="text"
                       className="w-full pl-10 py-2 bg-gray-800 text-white rounded-md"
                       placeholder="Email institucional"
-                      value={matricula}
-                      onChange={(e) => setMatricula(e.target.value)}
+                      value={emailInstitucional}
+                      onChange={(e) => setEmailInstitucional(e.target.value)}
                       required
                     />
                     <Mail className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -119,12 +130,12 @@ export default function LoginPage() {
           <div className="toggle-box">
               <div className="toggle-panel toggle-left">
                 <img 
-                  src="/assets/ige.png" 
+                  src="/assets/logo.png"
                   alt="Logo IGE" 
-                  className="w-32 h-32 mb-8 object-contain"
+                  className="w-80 h-40 mb-8 object-contain"
                 />
-                <h1>Olá, Bem vindo!</h1>
-                <p className="align-text-center">Sistema de gerenciamento br de estoque do IGE</p> 
+                <h1 className="mt-4">Olá, Bem vindo!</h1>
+                <p className="align-text-center">Sistema de gerenciamento de estoque do IGE</p> 
               </div>
 
               <div className="toggle-panel toggle-right">

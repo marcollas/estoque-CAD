@@ -11,7 +11,7 @@ type ErrorType = {
 //Inicializo o context com valores padrãos
 type ErrorContextType = {
     errors: ErrorType[]
-    addError: (error: ErrorType | string) => void
+    addNotification: (error: ErrorType | string) => void
     removeError: (error: ErrorType) => void
     clearErrors: () => void
 }
@@ -22,7 +22,7 @@ type ErrorProviderProps = {
 
 const ErrorContext = createContext<ErrorContextType>({
     errors: [],
-    addError: () => {},
+    addNotification: () => {},
     removeError: () => {},
     clearErrors: () => {},
   });
@@ -35,7 +35,7 @@ export const ErrorProvider = ({children} : ErrorProviderProps) =>{
     * @param error Pode ser um objeto ErrorType ou uma string simples
     */
 
-    const addError = (error: ErrorType | string) => {
+    const addNotification = (error: ErrorType | string) => {
         const errorObj: ErrorType = typeof error === 'string' ? {mensagem: error, tipo: 'error'} : error //Aqui é feito uma inserção condicional, onde se o tipo passado for string, simplesmente adiciona a mesmo a um objeto de erros
         
         //É preciso criar um id para poder acessar os erros mais facilmente. 
@@ -66,7 +66,7 @@ export const ErrorProvider = ({children} : ErrorProviderProps) =>{
     };
 
     return(
-        <ErrorContext.Provider value={{errors, addError, removeError, clearErrors}}>
+        <ErrorContext.Provider value={{errors, addNotification, removeError, clearErrors}}>
             {children}
         </ErrorContext.Provider>
     )
