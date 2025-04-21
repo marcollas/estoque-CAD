@@ -21,6 +21,7 @@ import { RequisitanteType } from "@/types/requisitanteType"
 import ProtectedRoute from "@/components/ProtectedRoutes"
 import { useAuth } from "@/contexts/UsuarioContext"
 import Loading from "./loading"
+import { formatarDataEHorario } from "@/functions/formatarDataHora"
 
 export default function MovimentacoesPage() {
   const movimentacaoHook = useMovimentacao()
@@ -211,8 +212,7 @@ export default function MovimentacoesPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4">Data</th>
-                <th className="text-left py-3 px-4">Horário</th>
+                <th className="text-left py-3 px-4">Data e Horário</th>
                 <th className="text-left py-3 px-4">Usuario</th>
                 <th className="text-left py-3 px-4">Nº Requisição</th>
                 <th className="text-left py-3 px-4">Requisitante</th>
@@ -223,8 +223,7 @@ export default function MovimentacoesPage() {
             <tbody>
               {movimentacoesFiltradas.map((movimentacao, index) => (
                 <tr key={index} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">{format(movimentacao.movData, "dd/MM/yyyy")}</td>
-                  <td className="py-3 px-4">{movimentacao.movHorario}</td>
+                  <td className="py-3 px-4">{formatarDataEHorario(movimentacao.movData, movimentacao.movHorario)}</td>
                   <td className="py-3 px-4">{movimentacao.movUsuario}</td>
                   <td className="py-3 px-4">{movimentacao.movNumRequisicao}</td>
                   <td className="py-3 px-4">{movimentacao.movRequisitante}</td>

@@ -9,6 +9,7 @@ const formatarDadosApi = (formData: FormProdutoType) =>{
         proQtd: formData.proQtd,
         proDescricao: formData.proDescricao || '',
         proEstoqueMin: formData.proEstoqueMin,
+        proCusto: formData.proCusto,
         proCategoria: {
             catProId: formData.proCategoriaId || null
         },

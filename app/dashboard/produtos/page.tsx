@@ -32,6 +32,7 @@ export default function ProdutosPage() {
     proCategoriaNome: "",
     proQtd: 0,
     proEstoqueMin: 0,
+    proCusto: 0,
     proDescricao: ""
   })
 
@@ -83,6 +84,7 @@ export default function ProdutosPage() {
         proCategoriaNome: "",
         proQtd: 0,
         proEstoqueMin: 0,
+        proCusto: 0,
         proDescricao: ""
       });
   
@@ -138,6 +140,7 @@ export default function ProdutosPage() {
       proCategoriaNome: produto.proCategoria,
       proQtd: produto.proQtd,
       proEstoqueMin: produto.proEstoqueMin,
+      proCusto: produto.proCusto,
       proDescricao: produto.proDescricao
     })
     setDialogOpen(true)
@@ -155,6 +158,7 @@ export default function ProdutosPage() {
       proNome: "",
       proQtd: 0,
       proEstoqueMin: 0,
+      proCusto: 0,
       proSipac: "",
       proUnId: 0,
       proUnSigla: "",
@@ -205,6 +209,7 @@ export default function ProdutosPage() {
                   <th className="text-left py-3 px-4">Categoria</th>
                   <th className="text-left py-3 px-4">Estoque</th>
                   <th className="text-left py-3 px-4">Mínimo</th>
+                  <th className="text-left py-3 px-4">Custo</th>
                   <th className="text-left py-3 px-4">Status</th>
                   <th className="text-left py-3 px-4">Ações</th>
                 </tr>
@@ -218,6 +223,7 @@ export default function ProdutosPage() {
                     <td className="py-3 px-4">{produto.proCategoria}</td>
                     <td className="py-3 px-4">{produto.proQtd}</td>
                     <td className="py-3 px-4">{produto.proEstoqueMin}</td>
+                    <td className="py-3 px-4">R$ {produto.proCusto.toFixed(2)}</td>
                     <td className="py-3 px-4">
                       {produto.isAbaixoMin ? (
                         <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Baixo</span>
@@ -284,12 +290,24 @@ export default function ProdutosPage() {
                 <Label htmlFor="nome">Nome do Produto</Label>
                 <Input id="nome" name="proNome" value={formData.proNome} onChange={handleInputChange} required />
               </div>            
+              <div className="space-y-2">
+                <Label htmlFor="nome">Código SIPAC</Label>
+                <Input id="nome" name="proSipac" value={formData.proSipac} onChange={handleInputChange} required />
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="nome">Código SIPAC</Label>
-                  <Input id="nome" name="proSipac" value={formData.proSipac} onChange={handleInputChange} required />
-                </div>
-                <div className="space-y-2">
+                  <Label htmlFor="custo">Valor de custo</Label>
+                  <Input
+                    id="custo"
+                    name="proCusto"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={formData.proCusto || ""} 
+                    onChange={handleInputChange}
+                  />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="minimo">Estoque Mínimo</Label>
                     <Input
                       id="minimo"
@@ -299,7 +317,7 @@ export default function ProdutosPage() {
                       value={formData.proEstoqueMin || ""} 
                       onChange={handleInputChange}
                     />
-                </div>
+                  </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="observacao">Descrição do produto</Label>

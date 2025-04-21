@@ -10,6 +10,7 @@ export type ProdutoType = {
     proDescricao: string
     proQtd: number
     proEstoqueMin: number
+    proCusto: number
     isAbaixoMin: boolean
     isAtivo: boolean
   }
@@ -25,5 +26,6 @@ export type FormProdutoType = {
     proDescricao?: string
     proQtd: number
     proEstoqueMin: number
+    proCusto: number
     proId?: number  // ProId é opcional, pode estar ou não contido no formulário
 }
