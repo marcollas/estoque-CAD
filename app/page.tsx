@@ -13,19 +13,15 @@ import '../styles/login.css'
 export default function LoginPage() {
   const erro = useError()
   const {loading, isAutenticado, login} = useAuth()
-  const [loadLogin, setLoadLogin] = useState(true)
+  const [loadLogin, setLoadLogin] = useState(false)
   const [emailInstitucional, setEmailInstitucional] = useState("")
   const [senha, setSenha] = useState("")
   const [isActive, setIsActive] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading) {
-      if (isAutenticado) {
-        router.push("/dashboard")
-      } else {
-        setLoadLogin(false)
-      }
+    if (!loading && isAutenticado) {
+      router.push("/dashboard")
     }
   }, [loading, isAutenticado, router])
   
