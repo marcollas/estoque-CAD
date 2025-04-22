@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { format } from "date-fns"
+import { ptBR } from "date-fns/locale"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 import { FormMovimentacaoType, MovimentacaoType, ProdutosMovType } from "@/types/movimentacaoType"
 import { useMovimentacao } from "@/hooks/useMovimentacao"
@@ -43,7 +46,7 @@ export default function MovimentacoesPage() {
 
   const dadosFormulario: FormMovimentacaoType = {
     movOrigem: 'NOR', //Implementações futuras
-    movTipo: 'E',
+    movTipo: 'S',
     movNf: formData.numeroNF,
     movNumRequisicao: formData.numeroRequisicao,
     movRequisitante: requisitanteSelecionado,
@@ -53,7 +56,7 @@ export default function MovimentacoesPage() {
       const fetchData = async () => {
         try {
           await Promise.all([
-            movimentacaoHook.listarMovimentacao("E", "F"),
+            movimentacaoHook.listarMovimentacao("S", "F"),
             produtosHook.listarProdutos(),
             requisitanteHook.listarRequisitante()
           ])
@@ -171,7 +174,7 @@ export default function MovimentacoesPage() {
   }
 
   const handleCancel = (id: number) => {
-    if (confirm("Tem certeza que deseja cancelar esta entrada? \nEste é um processo incancelável!")) {
+    if (confirm("Tem certeza que deseja cancelar esta saida? \nEste é um processo incancelável!")) {
       movimentacaoHook.cancelarMovimentacao(id)
     }
   }
@@ -183,7 +186,7 @@ export default function MovimentacoesPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <ShoppingCart className="h-6 w-6" />
-          Entradas de Estoque
+          Saidas de Estoque
         </h1>
         <Button onClick={handleNovaMovimentacao} className="bg-[#1e3a8a]">
           <Plus className="h-4 w-4 mr-2" />
@@ -211,7 +214,7 @@ export default function MovimentacoesPage() {
               <tr className="border-b">
                 <th className="text-left py-3 px-4">Data e Horário</th>
                 <th className="text-left py-3 px-4">Usuario</th>
-                <th className="text-left py-3 px-4">Nº NF</th>
+                <th className="text-left py-3 px-4">Nº Requisição</th>
                 <th className="text-left py-3 px-4">Requisitante</th>
                 <th className="text-left py-3 px-4">Itens</th>
                 
@@ -222,7 +225,7 @@ export default function MovimentacoesPage() {
                 <tr key={index} className="border-b hover:bg-gray-50">
                   <td className="py-3 px-4">{formatarDataEHorario(movimentacao.movData, movimentacao.movHorario)}</td>
                   <td className="py-3 px-4">{movimentacao.movUsuario}</td>
-                  <td className="py-3 px-4">{movimentacao.movNf}</td>
+                  <td className="py-3 px-4">{movimentacao.movNumRequisicao}</td>
                   <td className="py-3 px-4">{movimentacao.movRequisitante}</td>
                   <td className="py-3 px-4">
                     <div className="flex flex-wrap gap-1">
@@ -273,7 +276,7 @@ export default function MovimentacoesPage() {
                       {requisitanteSelecionado.reqNome} - {requisitanteSelecionado.reqFacSigla}
                     </span>
                   ) : (
-                    <span>Selecionar fornecedor</span>
+                    <span>Selecionar requisitante</span>
                   )}
                 </Button>
               </div>
@@ -372,7 +375,7 @@ export default function MovimentacoesPage() {
       <Dialog open={requisitanteDialogOpen} onOpenChange={setRequisitanteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Selecionar Fornecedor</DialogTitle>
+            <DialogTitle>Selecionar Requisitante</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="relative">
