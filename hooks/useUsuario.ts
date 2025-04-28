@@ -8,10 +8,15 @@ export const useUsuario = (initialUsuario: UsuarioType[] = []) => {
     const [loading, setLoading] = useState(false);
     const {addNotification} = useError()
     
-    const listarUsuario = async () => {
+    const listarUsuario = async (status: number | boolean) => {
         setLoading(true)
+        if(status == 0){
+            status = false
+        }else{
+            status = true
+        }
         try{
-            const data = await UsuarioServices.listarTodos()
+            const data = await UsuarioServices.listarTodos(status)
             setUsuario(data)
             
         }catch(err){

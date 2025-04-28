@@ -8,12 +8,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { format } from "date-fns"
 import { Badge } from "@/components/ui/badge"
 import { FormMovimentacaoType, MovimentacaoType, ProdutosMovType } from "@/types/movimentacaoType"
 import { useMovimentacao } from "@/hooks/useMovimentacao"
 import { useProdutos } from "@/hooks/useProduto"
-import { useRequisitante } from "@/hooks/useRequisitante"
 import { RequisitanteType } from "@/types/requisitanteType"
 import ProtectedRoute from "@/components/ProtectedRoutes"
 import { useAuth } from "@/contexts/UsuarioContext"
@@ -21,15 +19,23 @@ import Loading from "./loading"
 import { formatarDataEHorario } from "@/functions/formatarDataHora"
 
 export default function MovimentacoesPage() {
+  // valor padrão
+  const fornecedor: RequisitanteType = {
+    reqId: 1,
+    reqNome: 'FORNECEDOR',
+    isAtivo: true,
+    reqFacNome: null,
+    reqFacSigla: null,
+    reqFaqId: null
+  };
+  
   const movimentacaoHook = useMovimentacao()
   const produtosHook  = useProdutos()
-  const requisitanteHook = useRequisitante()
   const {isAutenticado, usuario} = useAuth()
   const [busca, setBusca] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [requisitanteDialogOpen, setRequisitanteDialogOpen] = useState(false)
   const [produtoDialogOpen, setProdutoDialogOpen] = useState(false)
-  const [requisitanteSelecionado, setRequisitanteSelecionado] = useState<RequisitanteType | null>(null)
+  const [requisitanteSelecionado, setRequisitanteSelecionado] = useState<RequisitanteType | null>(fornecedor)
   const [buscaRequisitante, setBuscaRequisitante] = useState("")
   const [buscaProduto, setBuscaProduto] = useState("")
   const [produtoSelecionado, setProdutoSelecionado] = useState<any>(null)
@@ -39,6 +45,7 @@ export default function MovimentacoesPage() {
     numeroNF: "",
     numeroRequisicao: "",
   })
+
 
 
   const dadosFormulario: FormMovimentacaoType = {
@@ -54,8 +61,7 @@ export default function MovimentacoesPage() {
         try {
           await Promise.all([
             movimentacaoHook.listarMovimentacao("E", "F"),
-            produtosHook.listarProdutos(),
-            requisitanteHook.listarRequisitante()
+            produtosHook.listarProdutos()
           ])
         } catch (error) {
           console.error("Erro ao carregar dados:", error)
@@ -75,13 +81,6 @@ export default function MovimentacoesPage() {
       movimentacao.movUsuario?.toLowerCase().includes(busca.toLowerCase()),
   )
 
-  const requisitantesFiltrados = requisitanteHook.requisitante.filter(
-    (requisitante) =>
-      requisitante.reqNome.toLowerCase().includes(buscaRequisitante.toLowerCase()) ||
-      requisitante.reqFacSigla?.toLowerCase().includes(buscaRequisitante.toLowerCase()) ||
-      requisitante.reqFacNome?.toLowerCase().includes(buscaRequisitante.toLowerCase()),
-  )
-
   const produtosFiltrados = produtosHook.produtos.filter(
     (produto) =>
       produto.proNome.toLowerCase().includes(buscaProduto.toLowerCase()) ||
@@ -98,10 +97,6 @@ export default function MovimentacoesPage() {
     })
   }
 
-  const handleSelecionarRequisitante = (requisitante: any) => {
-    setRequisitanteSelecionado(requisitante)
-    setRequisitanteDialogOpen(false)
-  }
 
   const handleAdicionarProduto = () => {
     if (!produtoSelecionado || quantidade <= 0) return
@@ -151,7 +146,6 @@ export default function MovimentacoesPage() {
     }
 
     // Limpar formulário
-    setRequisitanteSelecionado(null)
     setItensSelecionados([])
     setFormData({
       numeroNF: "",
@@ -161,7 +155,6 @@ export default function MovimentacoesPage() {
   }
 
   const handleNovaMovimentacao = () => {
-    setRequisitanteSelecionado(null)
     setItensSelecionados([])
     setFormData({
       numeroNF: "",
@@ -212,7 +205,7 @@ export default function MovimentacoesPage() {
                 <th className="text-left py-3 px-4">Data e Horário</th>
                 <th className="text-left py-3 px-4">Usuario</th>
                 <th className="text-left py-3 px-4">Nº NF</th>
-                <th className="text-left py-3 px-4">Requisitante</th>
+                <th className="text-left py-3 px-4">Fornecedor</th>
                 <th className="text-left py-3 px-4">Itens</th>
                 
               </tr>
@@ -258,27 +251,6 @@ export default function MovimentacoesPage() {
             <DialogTitle>Nova Movimentação de Estoque</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="requisitante">Requisitante</Label>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                  onClick={() => setRequisitanteDialogOpen(true)}
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  {requisitanteSelecionado ? (
-                    <span>
-                      {requisitanteSelecionado.reqNome} - {requisitanteSelecionado.reqFacSigla}
-                    </span>
-                  ) : (
-                    <span>Selecionar fornecedor</span>
-                  )}
-                </Button>
-              </div>
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="numeroNF">Número da NF</Label>
@@ -365,58 +337,6 @@ export default function MovimentacoesPage() {
               </Button>
             </div>
           </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal de Seleção de Requisitante */}
-      <Dialog open={requisitanteDialogOpen} onOpenChange={setRequisitanteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Selecionar Fornecedor</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Buscar requisitante..."
-                className="pl-10"
-                value={buscaRequisitante}
-                onChange={(e) => setBuscaRequisitante(e.target.value)}
-              />
-            </div>
-            <div className="border rounded-md overflow-hidden max-h-[300px] overflow-y-auto">
-              <table className="w-full">
-                <thead className="bg-muted sticky top-0">
-                  <tr>
-                    <th className="text-left py-2 px-4">Nome</th>
-                    <th className="text-left py-2 px-4">Faculdade</th>
-                    <th className="text-left py-2 px-4">Sigla Faculdade</th>
-                    <th className="text-left py-2 px-4"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {requisitantesFiltrados.map((requisitante, index) => (
-                    <tr key={index} className="border-t hover:bg-muted/50 cursor-pointer">
-                      <td className="py-2 px-4">{requisitante.reqNome}</td>
-                      <td className="py-2 px-4">{requisitante.reqFacNome}</td>
-                      <td className="py-2 px-4">{requisitante.reqFacSigla}</td>
-                      <td className="py-2 px-4">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleSelecionarRequisitante(requisitante)}
-                        >
-                          Selecionar
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
         </DialogContent>
       </Dialog>
 

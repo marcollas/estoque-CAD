@@ -18,9 +18,10 @@ import ProtectedRoute from "@/components/ProtectedRoutes"
 import { useRouter } from "next/navigation"
 
 export default function UsuariosPage() {
-  //ADICIONAR PROTEÇÃO PARA CASO DE USUÁRIO NÃO ADM
+
   const {isAutenticado, usuario, loading} = useAuth()
   const [busca, setBusca] = useState("")
+  const [status, setStatus] = useState<number>(1) // Estado para o filtro de perfil
   const [usuarioAtual, setUsuarioAtual] = useState<any>(null)
   const [confirmaSenha, setConfirmarSenha] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -37,7 +38,7 @@ export default function UsuariosPage() {
     const fetchData = async () => {
       try {
         await Promise.all([
-          usuarioHook.listarUsuario()
+          usuarioHook.listarUsuario(status)
         ])
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
@@ -51,7 +52,7 @@ export default function UsuariosPage() {
       fetchData()
     }
     
-  }, [isAutenticado])
+  }, [isAutenticado, status])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,9 +89,12 @@ export default function UsuariosPage() {
   }
 
   const usuariosFiltrados = usuarioHook.usuario.filter(
-    (usuario: UsuarioType) =>
-      (usuario.usuNome?.toLowerCase() || '').includes(busca.toLowerCase()) ||
-      (usuario.usuLogin?.toLowerCase() || '').includes(busca.toLowerCase()),
+    (usuario: UsuarioType) => {
+      const buscaMatch = 
+        (usuario.usuNome?.toLowerCase() || '').includes(busca.toLowerCase()) ||
+        (usuario.usuLogin?.toLowerCase() || '').includes(busca.toLowerCase());
+      return buscaMatch;
+    }
   )
 
   //Campo recebe o dados do formulário editado
@@ -121,7 +125,7 @@ export default function UsuariosPage() {
   }
 
   const handleDelete = (id: number) => {
-    if (confirm("Tem certeza que deseja inativar este Usuario?")) {
+    if (confirm("Tem certeza que deseja inativar/ativar este Usuario?")) {
       usuarioHook.inativarUsuario(id)
     }
   }
@@ -161,7 +165,7 @@ export default function UsuariosPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-4 mb-6 items-center">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <Input
@@ -171,6 +175,38 @@ export default function UsuariosPage() {
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
               />
+            </div>
+            
+            {/* Radio Buttons para filtro de perfil */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id="admin"
+                  name="filtroPerfil"
+                  value={1}
+                  checked={status === 1}
+                  onChange={() => setStatus(1)}
+                  className="h-4 w-4 text-[#1e3a8a] focus:ring-[#1e3a8a]"
+                />
+                <Label htmlFor="admin" className="text-sm font-medium">
+                  Ativo
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id="almoxarifado"
+                  name="filtroPerfil"
+                  value={0}
+                  checked={status === 0}
+                  onChange={() => setStatus(0)}
+                  className="h-4 w-4 text-[#1e3a8a] focus:ring-[#1e3a8a]"
+                />
+                <Label htmlFor="almoxarifado" className="text-sm font-medium">
+                  Inativo
+                </Label>
+              </div>
             </div>
           </div>
 
@@ -276,4 +312,3 @@ export default function UsuariosPage() {
     </ProtectedRoute>
   )
 }
-

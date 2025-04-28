@@ -124,7 +124,7 @@ export default function ProdutosPage() {
   const handleCategoriaChange = (categoria: string) => {
     setFormData({
       ...formData,
-      proCategoriaId: Number(categoria)
+      proCategoriaId: categoria == "0" ? null : Number(categoria)
     })
   }
 
@@ -277,6 +277,7 @@ export default function ProdutosPage() {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="0">Selecione</SelectItem>
                     {
                       categoriaHook.categoria.map((categoria, index) => {
                         return <SelectItem key={index} value={categoria.catProId.toString()}>{categoria.catProNome}</SelectItem>

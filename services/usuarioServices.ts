@@ -3,8 +3,12 @@ import type { AlterarSenhaType, UsuarioType } from "@/types/usuarioype";
 
 
 export const UsuarioServices = {
-    async listarTodos(): Promise<UsuarioType[]> {
-        const response = await apiClient.get('/usuario/')
+    async listarTodos(status: boolean): Promise<UsuarioType[]> {
+        const response = await apiClient.get('/usuario/', {
+            params: {
+                status: status
+            }
+        })
         return response.data
     },
 
