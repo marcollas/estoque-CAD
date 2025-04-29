@@ -182,12 +182,12 @@ export default function faculdadePage() {
             <form onSubmit={handleSubmit} className="space-y-4">
 
               <div className="space-y-2">
-                <Label htmlFor="nome">Nome da Faculdade</Label>
-                <Input id="nome" name="facNome" value={formData.facNome} onChange={handleInputChange} required />
+                <Label htmlFor="facNome">Nome da Faculdade</Label>
+                <Input id="facNome" name="facNome" value={formData.facNome} onChange={handleInputChange} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="nome">Sigla da Faculdade</Label>
-                <Input id="nome" name="facSigla" value={formData.facSigla} onChange={handleInputChange} required />
+                <Label htmlFor="facSigla">Sigla da Faculdade</Label>
+                <Input id="facSigla" name="facSigla" value={formData.facSigla} onChange={handleInputChange} required />
               </div>
     
               <div className="flex justify-end gap-2">

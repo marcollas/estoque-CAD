@@ -20,6 +20,7 @@ export type MovimentacaoType = {
 export type ProdutosMovType = {
     produto: ProdutoType
     qtdProduto: number
+    custoProduto: number
 }
 
 export type FormMovimentacaoType = {

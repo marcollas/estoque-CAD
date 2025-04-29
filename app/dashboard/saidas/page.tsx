@@ -125,7 +125,8 @@ export default function MovimentacoesPage() {
         ...itensSelecionados,
         {
           produto: produtoSelecionado,
-          qtdProduto: quantidade
+          qtdProduto: quantidade,
+          custoProduto: produtoSelecionado.custoProduto
         },
       ])
     }

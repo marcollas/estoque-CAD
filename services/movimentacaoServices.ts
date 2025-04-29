@@ -11,6 +11,7 @@ const formatarDadosApi = (formData: FormMovimentacaoType) =>{
         },
         produtosMov: formData.produtosMov?.map(produtoMov => ({
             proMovQtdProduto: produtoMov.qtdProduto,
+            proMovCustoProduto: produtoMov.custoProduto,
             proMovProduto: {
                 proId: produtoMov.produto.proId
             }

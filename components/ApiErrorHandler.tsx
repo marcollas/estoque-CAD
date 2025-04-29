@@ -13,7 +13,7 @@ export default function ApiErrorHandler() {
       addNotification({
         mensagem: errorMessage, 
         tipo: 'error',
-        id: Date.now().toString()
+        id: crypto.randomUUID()
       })
     })
   }, [addNotification])
