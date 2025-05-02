@@ -3,8 +3,12 @@ import type { UnidadeType } from "@/types/unidadeType";
 
 
 export const UnidadeServices = {
-    async listarTodos(): Promise<UnidadeType[]> {
-        const response = await apiClient.get('/unidadeProduto/')
+    async listarTodos(status: boolean): Promise<UnidadeType[]> {
+        const response = await apiClient.get('/unidadeProduto/',{
+            params: {
+                status: status
+            }
+        })
         return response.data
             
     },

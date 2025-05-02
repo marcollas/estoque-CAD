@@ -20,8 +20,12 @@ const formatarDadosApi = (formData: FormProdutoType) =>{
 }
 
 export const ProdutoServices = {
-    async listarTodos(): Promise<ProdutoType[]> {
-        const response = await apiClient.get('/produto/')
+    async listarTodos(status: boolean): Promise<ProdutoType[]> {
+        const response = await apiClient.get('/produto/', {
+            params: {
+                status: status
+            }
+        })
         return response.data
     },
 

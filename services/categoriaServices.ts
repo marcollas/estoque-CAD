@@ -3,9 +3,13 @@ import type { CategoriaType } from "@/types/categoriaType";
 
 
 export const CategoriaServices = {
-    async listarTodas(): Promise<CategoriaType[]> {
+    async listarTodas(status: boolean): Promise<CategoriaType[]> {
         
-        const response = await apiClient.get('/categoriaProduto/')
+        const response = await apiClient.get('/categoriaProduto/', {
+            params: {
+                status: status
+            }
+        })
         return response.data
     },
 

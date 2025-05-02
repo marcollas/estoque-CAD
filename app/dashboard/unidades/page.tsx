@@ -8,10 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { url, port } from '../../../configApi.json'
-import { useUnidades } from "@/hooks/useUnidade"
+import { useUnidades } from "@/hooks/"
 import Loading from "@/components/Loading"
+import RadionButtonStatus from "@/components/RadioButtonStatus"
 import type { UnidadeType } from "@/types/unidadeType"
 import { useAuth } from "@/contexts/UsuarioContext"
 import ProtectedRoute from "@/components/ProtectedRoutes"
@@ -19,6 +18,7 @@ import ProtectedRoute from "@/components/ProtectedRoutes"
 export default function unidadesPage() {
   const {isAutenticado} = useAuth()
   const [busca, setBusca] = useState("")
+  const [status, setStatus] = useState<number>(1)
   const [unidadeAtual, setUnidadeAtual] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<UnidadeType>({
@@ -32,7 +32,7 @@ export default function unidadesPage() {
     const fetchData = async () => {
       try {
         await Promise.all([
-          unidadesHook.listarUnidades()
+          unidadesHook.listarUnidades(status)
         ])
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
@@ -42,7 +42,7 @@ export default function unidadesPage() {
       fetchData()
     }
     
-  }, [isAutenticado])
+  }, [isAutenticado, status])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,7 +140,9 @@ export default function unidadesPage() {
                 onChange={(e) => setBusca(e.target.value)}
               />
             </div>
+            <RadionButtonStatus onStatusChange={setStatus} status={status}/>
           </div>
+          
 
           <div className="overflow-x-auto">
             <table className="w-full">

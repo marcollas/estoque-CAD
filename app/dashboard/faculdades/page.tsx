@@ -9,14 +9,16 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import Loading from "@/components/Loading"
-import { useFaculdade } from "@/hooks/useFaculdade"
+import { useFaculdade } from "@/hooks/"
 import type { FaculdadeType } from "@/types/faculdadeType"
 import { useAuth } from "@/contexts/UsuarioContext"
 import ProtectedRoute from "@/components/ProtectedRoutes"
+import RadioButtonStatus from "@/components/RadioButtonStatus"
 
 export default function faculdadePage() {
   const {isAutenticado} = useAuth()
   const [busca, setBusca] = useState("")
+  const [status, setStatus] = useState<number>(1)
   const [faculdadeAtual, setfaculdadeAtual] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<FaculdadeType>({
@@ -30,7 +32,7 @@ export default function faculdadePage() {
     const fetchData = async () => {
       try {
         await Promise.all([
-          faculdadeHook.listarFaculdade()
+          faculdadeHook.listarFaculdade(status)
         ])
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
@@ -41,7 +43,7 @@ export default function faculdadePage() {
     if(isAutenticado){
       fetchData()
     }
-  }, [isAutenticado])
+  }, [isAutenticado, status])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,6 +143,7 @@ export default function faculdadePage() {
                 onChange={(e) => setBusca(e.target.value)}
               />
             </div>
+            <RadioButtonStatus status={status} onStatusChange={setStatus}/>
           </div>
 
           <div className="overflow-x-auto">

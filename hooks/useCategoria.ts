@@ -8,10 +8,15 @@ export const useCategoria = (initialCategoria: CategoriaType[] = []) => {
     const [loading, setLoading] = useState(false);
     const {addNotification} = useError()
     
-    const listarCategoria = async () => {
+    const listarCategoria = async (status: number | boolean) => {
         setLoading(true)
+        if(status == 0){
+            status = false
+        }else{
+            status = true
+        }
         try{
-            const data = await CategoriaServices.listarTodas()
+            const data = await CategoriaServices.listarTodas(status)
             setCategoria(data)
         }catch(err){
             addNotification(err instanceof Error ? err.message : "Erro ao atualizar categoria")

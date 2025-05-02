@@ -9,17 +9,17 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { url, port } from '../../../configApi.json'
 import Loading from "@/components/Loading"
-import { useRequisitante } from "@/hooks/useRequisitante"
-import { useFaculdade } from "@/hooks/useFaculdade"
+import { useFaculdade, useRequisitante } from "@/hooks/"
 import type { RequisitanteType } from "@/types/requisitanteType"
 import { useAuth } from "@/contexts/UsuarioContext"
 import ProtectedRoute from "@/components/ProtectedRoutes"
+import RadioButtonStatus from "@/components/RadioButtonStatus"
 
 export default function RequisitantesPage() {
   const {isAutenticado} = useAuth()
   const [busca, setBusca] = useState("")
+  const [status, setStatus] = useState<number>(1)
   const [requisitanteAtual, setRequisitanteAtual] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<RequisitanteType>({
@@ -37,8 +37,8 @@ export default function RequisitantesPage() {
     const fetchData = async () => {
       try {
         await Promise.all([
-          requisitanteHook.listarRequisitante(),
-          faculdadeHook.listarFaculdade()
+          requisitanteHook.listarRequisitante(status),
+          faculdadeHook.listarFaculdade(1)
         ])
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
@@ -49,7 +49,7 @@ export default function RequisitantesPage() {
       fetchData()
     }
     
-  }, [isAutenticado])
+  }, [isAutenticado, status])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,6 +161,7 @@ export default function RequisitantesPage() {
                 onChange={(e) => setBusca(e.target.value)}
               />
             </div>
+            <RadioButtonStatus status={status} onStatusChange={setStatus}/>
           </div>
 
           <div className="overflow-x-auto">

@@ -14,8 +14,12 @@ const formatarDadosApi = (formData: RequisitanteType) =>{
 }
 
 export const RequisitanteServices = {
-    async listarTodos(): Promise<RequisitanteType[]> {
-        const response = await apiClient.get('/requisitante/')
+    async listarTodos(status: boolean): Promise<RequisitanteType[]> {
+        const response = await apiClient.get('/requisitante/',{
+            params: {
+                status: status
+            }
+        })
         return response.data
             
     },

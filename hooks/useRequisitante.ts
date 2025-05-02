@@ -10,10 +10,15 @@ export const useRequisitante = (initialRequisitante: RequisitanteType[] = []) =>
   const {addNotification} = useError()
 
   // Listar todos os Requisitante
-  const listarRequisitante = async () => {
+  const listarRequisitante = async (status: number | boolean) => {
     setLoading(true);
+    if(status == 0){
+        status = false
+    }else{
+        status = true
+    }
     try {
-      const data = await RequisitanteServices.listarTodos();
+      const data = await RequisitanteServices.listarTodos(status);
       setRequisitante(data);
       return data;
     } catch (err) {

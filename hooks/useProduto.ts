@@ -10,10 +10,15 @@ export const useProdutos = (initialProdutos: ProdutoType[] = []) => {
   const {addNotification} = useError()
 
   // Listar todos os produtos
-  const listarProdutos = async () => {
+  const listarProdutos = async (status: number | boolean) => {
     setLoading(true);
+    if(status == 0){
+      status = false
+    }else{
+      status = true
+    }
     try {
-      const data = await ProdutoServices.listarTodos();
+      const data = await ProdutoServices.listarTodos(status);
       setProdutos(data);
       return data;
     } catch (err) {

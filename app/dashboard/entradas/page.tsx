@@ -10,8 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { FormMovimentacaoType, MovimentacaoType, ProdutosMovType } from "@/types/movimentacaoType"
-import { useMovimentacao } from "@/hooks/useMovimentacao"
-import { useProdutos } from "@/hooks/useProduto"
+import { useProdutos, useMovimentacao } from "@/hooks/"
 import { RequisitanteType } from "@/types/requisitanteType"
 import ProtectedRoute from "@/components/ProtectedRoutes"
 import { useAuth } from "@/contexts/UsuarioContext"
@@ -46,8 +45,6 @@ export default function MovimentacoesPage() {
     numeroRequisicao: "",
   })
 
-
-
   const dadosFormulario: FormMovimentacaoType = {
     movOrigem: 'NOR', //Implementações futuras
     movTipo: 'E',
@@ -61,7 +58,7 @@ export default function MovimentacoesPage() {
         try {
           await Promise.all([
             movimentacaoHook.listarMovimentacao("E", "F"),
-            produtosHook.listarProdutos()
+            produtosHook.listarProdutos(1)
           ])
         } catch (error) {
           console.error("Erro ao carregar dados:", error)

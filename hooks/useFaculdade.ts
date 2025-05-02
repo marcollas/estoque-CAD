@@ -8,10 +8,15 @@ export const useFaculdade = (initialFaculdade: FaculdadeType[] = []) => {
     const [loading, setLoading] = useState(false);
     const {addNotification} = useError()
     
-    const listarFaculdade = async () => {
+    const listarFaculdade = async (status: number | boolean) => {
         setLoading(true)
+        if(status == 0){
+            status = false
+        }else{
+            status = true
+        }
         try{
-            const data = await FaculdadeServices.listarTodas()
+            const data = await FaculdadeServices.listarTodas(status)
             setFaculdade(data)
 
         }catch(err){

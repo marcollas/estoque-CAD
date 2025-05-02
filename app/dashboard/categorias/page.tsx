@@ -9,14 +9,16 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import Loading from "@/components/Loading"
 import { Label } from "@/components/ui/label"
-import { useCategoria } from "@/hooks/useCategoria"
+import { useCategoria } from "@/hooks/"
 import ProtectedRoute from "@/components/ProtectedRoutes"
 import type { CategoriaType } from "@/types/categoriaType"
 import { useAuth } from "@/contexts/UsuarioContext"
+import RadioButtonStatus from "@/components/RadioButtonStatus"
 
 export default function categoriaPage() {
   const {isAutenticado} = useAuth()
   const [busca, setBusca] = useState("")
+  const [status, setStatus] = useState<number>(1)
   const [categoriaAtual, setCategoriaAtual] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<CategoriaType>({
@@ -29,7 +31,7 @@ export default function categoriaPage() {
     const fetchData = async () => {
       try {
         await Promise.all([
-          categoriaHook.listarCategoria()
+          categoriaHook.listarCategoria(status)
         ])
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
@@ -40,7 +42,7 @@ export default function categoriaPage() {
       fetchData()
     }
     
-  }, [isAutenticado])
+  }, [isAutenticado, status])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,6 +138,7 @@ export default function categoriaPage() {
                 onChange={(e) => setBusca(e.target.value)}
               />
             </div>
+            <RadioButtonStatus status={status} onStatusChange={setStatus}/>
           </div>
 
           <div className="overflow-x-auto">

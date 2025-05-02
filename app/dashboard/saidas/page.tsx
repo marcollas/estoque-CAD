@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 import { FormMovimentacaoType, MovimentacaoType, ProdutosMovType } from "@/types/movimentacaoType"
-import { useMovimentacao } from "@/hooks/useMovimentacao"
+import { useMovimentacao } from "@/hooks/"
 import { useProdutos } from "@/hooks/useProduto"
 import { useRequisitante } from "@/hooks/useRequisitante"
 import { RequisitanteType } from "@/types/requisitanteType"
@@ -57,8 +57,8 @@ export default function MovimentacoesPage() {
         try {
           await Promise.all([
             movimentacaoHook.listarMovimentacao("S", "F"),
-            produtosHook.listarProdutos(),
-            requisitanteHook.listarRequisitante()
+            produtosHook.listarProdutos(1),
+            requisitanteHook.listarRequisitante(1)
           ])
         } catch (error) {
           console.error("Erro ao carregar dados:", error)

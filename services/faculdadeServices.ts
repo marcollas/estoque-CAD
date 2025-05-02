@@ -3,8 +3,12 @@ import type { FaculdadeType } from "@/types/faculdadeType";
 
 
 export const FaculdadeServices = {
-    async listarTodas(): Promise<FaculdadeType[]> {
-        const response = await apiClient.get('/faculdade/')
+    async listarTodas(status: boolean): Promise<FaculdadeType[]> {
+        const response = await apiClient.get('/faculdade/', {
+            params: {
+                status: status
+            }
+        })
         return response.data
         
     },

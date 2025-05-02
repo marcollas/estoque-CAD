@@ -9,13 +9,13 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useUsuario } from "@/hooks/useUsuario"
+import { useUsuario } from "@/hooks/"
 import type { UsuarioType } from "@/types/usuarioype"
 import Loading from "@/components/Loading"
-import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/contexts/UsuarioContext"
 import ProtectedRoute from "@/components/ProtectedRoutes"
 import { useRouter } from "next/navigation"
+import RadioButtonStatus from "@/components/RadioButtonStatus"
 
 export default function UsuariosPage() {
 
@@ -178,35 +178,7 @@ export default function UsuariosPage() {
             </div>
             
             {/* Radio Buttons para filtro de perfil */}
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id="admin"
-                  name="filtroPerfil"
-                  value={1}
-                  checked={status === 1}
-                  onChange={() => setStatus(1)}
-                  className="h-4 w-4 text-[#1e3a8a] focus:ring-[#1e3a8a]"
-                />
-                <Label htmlFor="admin" className="text-sm font-medium">
-                  Ativo
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id="almoxarifado"
-                  name="filtroPerfil"
-                  value={0}
-                  checked={status === 0}
-                  onChange={() => setStatus(0)}
-                  className="h-4 w-4 text-[#1e3a8a] focus:ring-[#1e3a8a]"
-                />
-                <Label htmlFor="almoxarifado" className="text-sm font-medium">
-                  Inativo
-                </Label>
-              </div>
+            <RadioButtonStatus status={status} onStatusChange={setStatus}/>
             </div>
           </div>
 
@@ -308,7 +280,6 @@ export default function UsuariosPage() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
     </ProtectedRoute>
   )
 }

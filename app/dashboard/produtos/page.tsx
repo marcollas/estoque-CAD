@@ -9,18 +9,18 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useProdutos } from "@/hooks/useProduto"
-import { useUnidades } from "@/hooks/useUnidade"
-import { useCategoria } from "@/hooks/useCategoria"
+import { useProdutos, useUnidades, useCategoria } from "@/hooks/"
 import type { ProdutoType, FormProdutoType } from "@/types/produtoType"
 import Loading from "@/components/Loading"
 import { Textarea } from "@/components/ui/textarea"
 import ProtectedRoute from "@/components/ProtectedRoutes"
 import { useAuth } from "@/contexts/UsuarioContext"
+import RadioButtonStatus from "@/components/RadioButtonStatus"
 
 export default function ProdutosPage() {
   const {isAutenticado, usuario} = useAuth()
   const [busca, setBusca] = useState("")
+  const [status, setStatus] = useState<number>(1)
   const [produtoAtual, setProdutoAtual] = useState<any>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [formData, setFormData] = useState<FormProdutoType>({
@@ -44,9 +44,9 @@ export default function ProdutosPage() {
     const fetchData = async () => {
       try {
         await Promise.all([
-          categoriaHook.listarCategoria(),
-          produtosHook.listarProdutos(),
-          unidadesHook.listarUnidades()
+          categoriaHook.listarCategoria(1),
+          produtosHook.listarProdutos(status),
+          unidadesHook.listarUnidades(1)
         ])
       } catch (error) {
         console.error("Erro ao carregar dados:", error)
@@ -58,7 +58,7 @@ export default function ProdutosPage() {
       fetchData()
     }
     
-  }, [isAutenticado])
+  }, [isAutenticado, status])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,6 +197,7 @@ export default function ProdutosPage() {
                 onChange={(e) => setBusca(e.target.value)}
               />
             </div>
+            <RadioButtonStatus status={status} onStatusChange={setStatus}/>
           </div>
 
           <div className="overflow-x-auto">

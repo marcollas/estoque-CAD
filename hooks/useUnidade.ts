@@ -8,10 +8,15 @@ export const useUnidades = (initialUnidades: UnidadeType[] = []) => {
     const [loading, setLoading] = useState(false);
     const {addNotification} = useError()
     
-    const listarUnidades = async () => {
+    const listarUnidades = async (status: number | boolean) => {
         setLoading(true)
+        if(status == 0){
+            status = false
+        }else{
+            status = true
+        }
         try{
-            const data = await UnidadeServices.listarTodos()
+            const data = await UnidadeServices.listarTodos(status)
             setUnidades(data)
         }catch(err){
             addNotification(err instanceof Error ? err.message : "Erro ao carregar unidades")
